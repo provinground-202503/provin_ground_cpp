@@ -1,0 +1,4 @@
+<launch>
+    <!-- node type: pure_pursuit_no_obs, pure_pursuit_local -->
+    <node name="pure_pursuit_local" pkg="provin_ground" type="pure_pursuit_local" output="screen"/>
+</launch>

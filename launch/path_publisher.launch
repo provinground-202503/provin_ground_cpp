@@ -1,0 +1,8 @@
+<launch>
+    <node name="global_path_node" pkg="provin_ground" type="global_path_publisher" output="screen">
+        <param name="path_file" value="/root/erp42_ws/src/provin_ground/path/path_xy.csv"/>
+    </node>
+    <node name="local_path_node" pkg="provin_ground" type="local_path_publisher" output="screen"/>
+    <node name="avoid_path_node" pkg="provin_ground" type="avoid_path_publisher" output="screen"/>
+    <node name="path_follower_node" pkg="provin_ground" type="avoid_path_follower" output="screen"/>
+</launch>

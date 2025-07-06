@@ -1,0 +1,4 @@
+<launch>
+    <node name="utm_pose_publisher" pkg="provin_ground" type="utm_pose_publisher" output="screen"/>
+    <node name="pure_pursuit" pkg="provin_ground" type="pure_pursuit_solo" output="screen"/>
+</launch>

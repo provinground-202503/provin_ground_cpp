@@ -1,0 +1,16 @@
+terminal 1: core
+roscore
+
+terminal 2: GPS
+sudo chmod 777 /dev/tty*
+roslaunch ublox_gps ublox-zed_f9p.launch
+
+terminal 3: RTK
+roslaunch ntrip_client ntrip_client.launch
+
+terminal 4: LIDAR&IMU
+roslaunch ouster-ros driver.launch
+
+terminal 5: CAMERA
+sudo chmod 777 /dev/video*
+roslaunch usb_cam usb_cam_config.launch
