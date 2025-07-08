@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   ackermann_msgs
   message_generation
+  yolo
 )
 
 ## System dependencies are found with CMake's conventions

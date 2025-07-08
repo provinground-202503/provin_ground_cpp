@@ -1,0 +1,31 @@
+<launch>
+    
+    <!-- lidar clustering node -->
+    <node pkg="lidar_pkg" type="lidar_clustering.py" name="lidar_clustering" output="screen">
+        <param name="ransac_threshold" value="0.2" />
+        <param name="min_cluster_size" value="10" />
+        <param name="min_samples" value="5" />
+        <param name="cluster_selection_epsilon" value="1.0" />
+        <param name="lidar_topic" value="/ouster/points" />
+    </node>
+
+    <!-- image compressed node -->
+    <!-- subscribe: /usb_cam/image_raw,,,,publish:/republished_image/published -->
+    <node pkg="yolo" type="republish_compressed.py" name="republish_image" output="screen"/>
+    <!-- camera object detection node -->
+    <!-- subscribe: /republished_image/compressed -->
+    <node name="yolo_detector" pkg="yolo" type="yolo_detection.py" output="screen">
+        <param name="image_topic" value="/republished_image/compressed"/>
+        <param name="model_path" value="$(find yolo)/models/best.pt"/>
+    </node>
+
+    <!-- imu filter node -->
+    <!-- subscribe: /ouster/imu ,,,,, publish: /imu/fix -->
+    <node pkg="imu_madgwick_filter" type="imu_madgwick_filter" name="imu_madgwick_filter" output="screen"/>
+    <!-- <node pkg="imu_madgwick_filter" type="imu_madgwick_filter_pynode" name="imu_madgwick_filter_pynode" output="screen"/> -->
+    
+    <!-- gnss tf fix node -->
+    <!-- subscribe:/utm,,,,publish:/utm_fix -->
+    <node name="utm_pose_publisher" pkg="provin_ground" type="utm_pose_publisher" output="screen"/>
+
+</launch>   

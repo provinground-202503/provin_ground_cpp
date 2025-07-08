@@ -3,7 +3,8 @@
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <tf2/utils.h> // tf2::getYaw 사용을 위해 추가
-
+#include <yolo/YoloDetection.h>
+#include <yolo/YoloDetectionArray.h>
 #include <erp_driver/erpCmdMsg.h>
 
 #include <iostream>
@@ -15,7 +16,7 @@
 // 차량의 축거 (wheelbase) (미터)
 const double WHEELBASE = 2.7; 
 // 목표 속도 (m/s)
-const double VEHICLE_SPEED = 5.0; 
+const double MAX_VEHICLE_SPEED = 5.0; 
 // Look-ahead 거리 계산을 위한 게인 값 (k * 속도)
 const double LOOKAHEAD_K = 0.5;
 // 최소/최대 Look-ahead 거리 (미터)
@@ -29,6 +30,9 @@ public:
         ros::NodeHandle nh("~");
         path_sub_ = nh.subscribe("/avoid_path", 1, &PathFollower::pathCallback, this);
         utm_sub_ = nh.subscribe("/utm", 1, &PathFollower::utmCallback, this);
+        yolo_sub_ = nh.subscribe("/yolo_detections",1,&PathFollower::yoloCallback,this);
+        imu_sub_ = nh.subscribe("/imu/fix",1,&PathFollower::imuCallback,this);
+
         drive_pub_ = nh.advertise<ackermann_msgs::AckermannDrive>("/drive", 1);
         erp_cmd_pub_ = nh.advertise<erp_driver::erpCmdMsg>("/erp42_ctrl_cmd",1);
         
@@ -44,6 +48,8 @@ private:
     // ROS 핸들러
     ros::Subscriber path_sub_;
     ros::Subscriber utm_sub_;
+    ros::Subscriber yolo_sub_;
+    ros::Subscriber imu_sub_;
     ros::Publisher drive_pub_;
     ros::Publisher erp_cmd_pub_;
     ros::Timer control_timer_;
@@ -53,6 +59,8 @@ private:
     geometry_msgs::PoseStamped current_utm_;
     geometry_msgs::PoseStamped previous_utm_; // 이전 UTM 위치 저장을 위한 변수
     double current_vehicle_yaw_; // 계산된 현재 차량의 yaw 값
+    yolo::YoloDetectionArray yolo_detections_;
+    double vehicle_speed_, emergency_brake_;
     
     // 콜백: 데이터가 들어오면 멤버 변수에 저장
     void pathCallback(const nav_msgs::Path::ConstPtr& msg){
@@ -60,6 +68,61 @@ private:
     }
     void utmCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
         current_utm_ = *msg;
+    }
+    void yoloCallback(const yolo::YoloDetectionArray::ConstPtr& msg){
+        yolo_detections_ = *msg;
+
+        bool redlight_detected = false;
+        bool yellowlight_detected=false;
+        bool person_detected = false;
+        bool barrel_detected = false;
+
+        for(const auto& object : yolo_detections_.detections){
+            if(object.class_name=="redlight"){
+                redlight_detected = 1;
+                vehicle_speed_ = MAX_VEHICLE_SPEED * 0.0;
+                break;
+            }
+            
+            if(object.class_name=="yellowlight"){
+                yellowlight_detected = 1;
+                vehicle_speed_ = MAX_VEHICLE_SPEED * 0.3;
+                break;
+            } 
+            if(object.class_name=="person"){
+                vehicle_speed_ = MAX_VEHICLE_SPEED * 0.5;
+                person_detected = true;
+            }
+            if(object.class_name=="barrel"){
+                vehicle_speed_ = MAX_VEHICLE_SPEED * 0.7;
+                barrel_detected = true;
+            }
+        }
+        if(redlight_detected) return;
+        if(yellowlight_detected) return;
+        if(person_detected) {
+            vehicle_speed_ = MAX_VEHICLE_SPEED * 0.5;
+            return;
+        }
+        if(barrel_detected){
+            vehicle_speed_ = MAX_VEHICLE_SPEED * 0.7;
+            return;
+        }
+        vehicle_speed_ = MAX_VEHICLE_SPEED * 1.0;
+    }
+
+    void imuCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
+        double roll, pitch, yaw;
+        tf2::Quaternion q;
+        q.setX(msg->pose.orientation.x);
+        q.setY(msg->pose.orientation.y);
+        q.setZ(msg->pose.orientation.z);
+        q.setW(msg->pose.orientation.w);
+        tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
+        if(std::tan(pitch) < -0.05){
+            emergency_brake_ = 100;
+        }
+        else emergency_brake_ = 1;
     }
 
     /**
@@ -95,7 +158,7 @@ private:
 
 
         // 2. 목표 지점(Target Point) 찾기
-        double lookahead_dist = std::max(MIN_LOOKAHEAD, std::min(MAX_LOOKAHEAD, VEHICLE_SPEED * LOOKAHEAD_K));
+        double lookahead_dist = std::max(MIN_LOOKAHEAD, std::min(MAX_LOOKAHEAD, vehicle_speed_ * LOOKAHEAD_K));
         int target_idx = findTargetPointIndex(lookahead_dist);
 
         // 경로 끝에 도달했거나 적절한 목표점을 찾지 못하면 정지
@@ -109,7 +172,7 @@ private:
         double steering_angle = calculateSteeringAngle(target_point);
 
         // 4. AckermannDrive 메시지 발행
-        publishDrive(VEHICLE_SPEED, steering_angle);
+        publishDrive(vehicle_speed_, steering_angle);
 
         // 5. 다음 계산을 위해 현재 위치를 이전 위치로 업데이트
         previous_utm_ = current_utm_;
@@ -194,10 +257,15 @@ private:
         drive_pub_.publish(drive_msg);
 
         erp_driver::erpCmdMsg cmd_msg;
-        cmd_msg.brake = 1;
+        cmd_msg.brake = emergency_brake_;
         cmd_msg.e_stop = false;
         cmd_msg.gear = 0;
-        cmd_msg.speed = static_cast<uint8_t>(speed * 3600 / 1000 * 10);
+        if(cmd_msg.brake>=2){
+            cmd_msg.speed = 10;
+        }
+        else{
+            cmd_msg.speed = static_cast<uint8_t>(speed * 3600 / 1000 * 10);
+        }
         double steering_angle_degree = steering_angle * 180 / M_PI;
         cmd_msg.steer = -steering_angle_degree * 71; // sign inverse
         if(cmd_msg.steer>2000){

@@ -17,16 +17,18 @@ public:
 
         // Subscriber 설정: /global_path와 /utm 토픽을 구독합니다.
         global_path_sub_ = nh.subscribe("/global_path", 1, &LocalPathPublisher::globalPathCallback, this);
-        utm_sub_ = nh.subscribe("/utm", 1, &LocalPathPublisher::utmCallback, this);
+        utm_sub_ = nh.subscribe("/utm_fix", 1, &LocalPathPublisher::utmCallback, this);
 
         // Publisher 설정: /local_path 토픽으로 메시지를 발행합니다.
         local_path_pub_ = nh.advertise<nav_msgs::Path>("/local_path", 1);
 
         // 이전 위치 초기값 설정 (임의의 값)
-        previous_x_ = 360000;
-        previous_y_ = 4000000;
-        current_x_ = 360000;
-        current_y_ = 4000000;
+        // utm_offset_x_ = 360777.923575;
+        // utm_offset_y_ = 4065980.612646;
+        previous_x_ = 360777.923575;
+        previous_y_ = 4065980.612646;
+        current_x_ = 360777.923575;
+        current_y_ = 4065980.612646;
 
         ROS_INFO("Local Path Publisher node has been initialized.");
     }

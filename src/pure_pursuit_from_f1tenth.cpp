@@ -62,7 +62,7 @@ private:
      * @brief CSV 파일에서 웨이포인트를 로드하고 UTM 오프셋을 적용합니다.
      */
     void loadWaypoints() {
-        std::string file_path = "/root/erp42_ws/src/provin_ground/path/path_xy.csv";
+        std::string file_path = "/root/erp42_ws/src/provin_ground_cpp/path/path_morai_xy.csv";
         std::ifstream file(file_path);
         if (!file.is_open()) {
             ROS_FATAL("경로 파일을 열 수 없습니다: %s", file_path.c_str());
@@ -244,7 +244,8 @@ private:
         erp_driver::erpCmdMsg cmd_msg;
         cmd_msg.e_stop = false;
         cmd_msg.gear = (target_speed_mps == 0) ? 1 : 0;
-        cmd_msg.speed = static_cast<uint8_t>(output_mps_ * 3.6 * 10.0);
+        if(current_speed_mps_ > target_speed_mps){cmd_msg.speed = 0;}
+        else cmd_msg.speed = static_cast<uint8_t>(output_mps_ * 3.6 * 10.0);
         cmd_msg.brake = (target_speed_mps == 0) ? 200 : emergency_brake_;
 
         double steering_angle_degree = steer_angle * 180.0 / M_PI;
@@ -259,9 +260,12 @@ private:
      * @brief 클래스 초기화 함수
      */
     void initialize() {
-        utm_offset_x_ = 360777.923575;
-        utm_offset_y_ = 4065980.612646;
-        
+        // utm_offset_x_ = 360777.923575;
+        // utm_offset_y_ = 4065980.612646;
+        utm_offset_x_ = 0;
+        utm_offset_y_ = 0;
+
+
         loadWaypoints();
 
         target_index_ = 0;
@@ -283,6 +287,8 @@ public:
         utm_sub_ = nh_.subscribe("/utm_fix", 1, &PurePursuit::utmCallback, this);
         erp_status_sub_ = nh_.subscribe("/erp42_status", 1, &PurePursuit::erpStatusCallback, this);
         imu_sub_ = nh_.subscribe("/imu/fix",1,&PurePursuit::imuCallback,this);
+        yolo_id_sub_ = nh_.subscribe()
+
         erp_cmd_pub_ = nh_.advertise<erp_driver::erpCmdMsg>("/erp42_ctrl_cmd", 1);
         ack_pub_ = nh_.advertise<ackermann_msgs::AckermannDriveStamped>("/ackermann_cmd", 1);
         path_pub_ = nh_.advertise<nav_msgs::Path>("/local_path", 1, true);

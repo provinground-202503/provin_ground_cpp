@@ -1,4 +1,4 @@
 <launch>
     <!-- node type: pure_pursuit_no_obs, pure_pursuit_local -->
-    <node name="pure_pursuit_local" pkg="provin_ground" type="pure_pursuit_local" output="screen"/>
+    <node name="path_follower_node" pkg="provin_ground" type="avoid_path_follower" output="screen"/>
 </launch>

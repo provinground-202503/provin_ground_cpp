@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 # CSV 파일을 읽어옵니다.
 # 'data.csv' 파일이 코드와 같은 폴더에 있어야 합니다.
 try:
-    df = pd.read_csv('path_xy.csv')
+    df = pd.read_csv('path_morai_xy.csv')
 except FileNotFoundError:
     print("'data.csv' 파일을 찾을 수 없습니다. 파일명과 경로를 확인해주세요.")
     exit()
