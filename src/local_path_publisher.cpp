@@ -17,7 +17,7 @@ public:
 
         // Subscriber 설정: /global_path와 /utm 토픽을 구독합니다.
         global_path_sub_ = nh.subscribe("/global_path", 1, &LocalPathPublisher::globalPathCallback, this);
-        utm_sub_ = nh.subscribe("/utm_fix", 1, &LocalPathPublisher::utmCallback, this);
+        utm_sub_ = nh.subscribe("/utm", 1, &LocalPathPublisher::utmCallback, this);
 
         // Publisher 설정: /local_path 토픽으로 메시지를 발행합니다.
         local_path_pub_ = nh.advertise<nav_msgs::Path>("/local_path", 1);
@@ -36,6 +36,7 @@ public:
     // global_path 토픽을 수신했을 때 호출되는 콜백 함수
     void globalPathCallback(const nav_msgs::Path::ConstPtr& msg){
         global_path_ = *msg;
+        std::cout<<"global path subscribed(local_path)"<<std::endl;
         // ROS_INFO("Received global path with %zu poses.", msg->poses.size());
     }
 
@@ -44,6 +45,8 @@ public:
         // 현재 UTM 좌표 업데이트
         current_x_ = msg->pose.position.x;
         current_y_ = msg->pose.position.y;
+        
+        std::cout<<"utm subscribed(local_path)"<<std::endl;
 
         // (주석 처리된 부분) 이전 좌표와 현재 좌표를 이용해 현재 차량의 yaw 추정 가능
         // double current_yaw = std::atan2(current_y_ - previous_y_, current_x_ - previous_x_);
@@ -94,6 +97,7 @@ public:
         // 생성된 local_path 발행
         if (!local_path.poses.empty()){
             local_path_pub_.publish(local_path);
+            std::cout<<"local path published(local path)"<<std::endl;
         }
     }
 

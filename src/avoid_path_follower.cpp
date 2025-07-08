@@ -14,14 +14,14 @@
 
 // --- 튜닝 파라미터 ---
 // 차량의 축거 (wheelbase) (미터)
-const double WHEELBASE = 2.7; 
+const double WHEELBASE = 1.0; 
 // 목표 속도 (m/s)
-const double MAX_VEHICLE_SPEED = 5.0; 
+const double MAX_VEHICLE_SPEED = 1.3; 
 // Look-ahead 거리 계산을 위한 게인 값 (k * 속도)
-const double LOOKAHEAD_K = 0.5;
+const double LOOKAHEAD_K = 0.3;
 // 최소/최대 Look-ahead 거리 (미터)
-const double MIN_LOOKAHEAD = 4.0;
-const double MAX_LOOKAHEAD = 10.0;
+const double MIN_LOOKAHEAD = 1.0;
+const double MAX_LOOKAHEAD = 2.0;
 
 
 class PathFollower{
@@ -31,13 +31,13 @@ public:
         path_sub_ = nh.subscribe("/avoid_path", 1, &PathFollower::pathCallback, this);
         utm_sub_ = nh.subscribe("/utm", 1, &PathFollower::utmCallback, this);
         yolo_sub_ = nh.subscribe("/yolo_detections",1,&PathFollower::yoloCallback,this);
-        imu_sub_ = nh.subscribe("/imu/fix",1,&PathFollower::imuCallback,this);
+        imu_sub_ = nh.subscribe("/imu_fix",1,&PathFollower::imuCallback,this);
 
         drive_pub_ = nh.advertise<ackermann_msgs::AckermannDrive>("/drive", 1);
         erp_cmd_pub_ = nh.advertise<erp_driver::erpCmdMsg>("/erp42_ctrl_cmd",1);
         
         // 50Hz (0.02초) 주기로 제어 루프 실행
-        control_timer_ = nh.createTimer(ros::Duration(0.02), &PathFollower::controlLoopCallback, this);
+        control_timer_ = nh.createTimer(ros::Duration(0.05), &PathFollower::controlLoopCallback, this);
 
         // 멤버 변수 초기화
         previous_utm_.header.stamp.fromSec(0); // 유효하지 않은 시간으로 초기화
@@ -65,11 +65,21 @@ private:
     // 콜백: 데이터가 들어오면 멤버 변수에 저장
     void pathCallback(const nav_msgs::Path::ConstPtr& msg){
         current_path_ = *msg;
+        std::cout<<"avoid path subscribed(avoid follow)"<<std::endl;
     }
     void utmCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
-        current_utm_ = *msg;
+        std::cout<<"utm subscribed(avoid_follow)"<<std::endl;
+        geometry_msgs::PoseStamped current_utm_;
+        current_utm_.header = msg->header;
+        current_utm_.pose.orientation = msg->pose.orientation;
+        current_utm_.pose.position.x=msg->pose.position.x-360777.923575;
+        current_utm_.pose.position.y=msg->pose.position.y-4065980.612646;
+        current_utm_.pose.position.z=msg->pose.position.z;
+
+        // current_utm_ = *msg;
     }
     void yoloCallback(const yolo::YoloDetectionArray::ConstPtr& msg){
+        std::cout<<"yolo subscribed(avoid_follow)"<<std::endl;
         yolo_detections_ = *msg;
 
         bool redlight_detected = false;
@@ -109,6 +119,7 @@ private:
             return;
         }
         vehicle_speed_ = MAX_VEHICLE_SPEED * 1.0;
+        std::cout<<"max speed(kph)"<<MAX_VEHICLE_SPEED<<" vehicle_speed: "<<vehicle_speed_<<std::endl;
     }
 
     void imuCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
@@ -123,6 +134,7 @@ private:
             emergency_brake_ = 100;
         }
         else emergency_brake_ = 1;
+        std::cout<<"pitch:"<<pitch<<" emergency_brake:"<<emergency_brake_<<std::endl;
     }
 
     /**
@@ -159,6 +171,7 @@ private:
 
         // 2. 목표 지점(Target Point) 찾기
         double lookahead_dist = std::max(MIN_LOOKAHEAD, std::min(MAX_LOOKAHEAD, vehicle_speed_ * LOOKAHEAD_K));
+        std::cout<<"lookahead dist: "<<lookahead_dist<<std::endl;
         int target_idx = findTargetPointIndex(lookahead_dist);
 
         // 경로 끝에 도달했거나 적절한 목표점을 찾지 못하면 정지
@@ -170,7 +183,8 @@ private:
 
         // 3. Pure Pursuit 조향각 계산
         double steering_angle = calculateSteeringAngle(target_point);
-
+        std::cout<<"steering angle: "<<steering_angle<<std::endl;
+        std::cout<<"vehicle speed: "<<vehicle_speed_<<std::endl;
         // 4. AckermannDrive 메시지 발행
         publishDrive(vehicle_speed_, steering_angle);
 
@@ -207,6 +221,9 @@ private:
             double dist_to_point = std::sqrt(dx * dx + dy * dy);
 
             if (dist_to_point > lookahead_dist) {
+                std::cout<<"vehicle point:"<<vehicle_x<<" "<<vehicle_y<<std::endl;
+                std::cout<<"target point("<<i<<"):"<<current_path_.poses[i].pose.position.x<<" "<<current_path_.poses[i].pose.position.y<<std::endl;
+                std::cout<<"found target point: "<<i<<" dist: "<<dist_to_point<<std::endl;
                 return i;
             }
         }
@@ -251,6 +268,7 @@ private:
      * @param steering_angle - 목표 조향각 (라디안)
      */
     void publishDrive(double speed, double steering_angle){
+        std::cout<<"called publishDrive:"<<speed<<" "<<steering_angle<<std::endl;
         ackermann_msgs::AckermannDrive drive_msg;
         drive_msg.speed = speed;
         drive_msg.steering_angle = steering_angle;
@@ -260,8 +278,8 @@ private:
         cmd_msg.brake = emergency_brake_;
         cmd_msg.e_stop = false;
         cmd_msg.gear = 0;
-        if(cmd_msg.brake>=2){
-            cmd_msg.speed = 10;
+        if(cmd_msg.brake>=80){
+            cmd_msg.speed = 0;
         }
         else{
             cmd_msg.speed = static_cast<uint8_t>(speed * 3600 / 1000 * 10);
@@ -276,7 +294,8 @@ private:
         }
         cmd_msg.steer = static_cast<int32_t>(cmd_msg.steer);
         erp_cmd_pub_.publish(cmd_msg);
-        std::cout<<"steering_angle: "<<steering_angle<<" erp_angle: "<<cmd_msg.steer<<std::endl;
+        std::cout<<"speed: "<<cmd_msg.speed<<" steer:"<<cmd_msg.steer<<" brake:"<<cmd_msg.brake<<" e_stop:"<<cmd_msg.e_stop<<" gear:"<<cmd_msg.gear<<std::endl;
+        // std::cout<<"steering_angle: "<<steering_angle<<" erp_angle: "<<cmd_msg.steer<<std::endl;
     }
 };
 

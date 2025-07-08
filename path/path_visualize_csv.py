@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 # CSV 파일을 읽어옵니다.
 # 'data.csv' 파일이 코드와 같은 폴더에 있어야 합니다.
 try:
-    df = pd.read_csv('path_morai_xy.csv')
+    df = pd.read_csv('path_corrected_3.csv')
 except FileNotFoundError:
     print("'data.csv' 파일을 찾을 수 없습니다. 파일명과 경로를 확인해주세요.")
     exit()
@@ -20,7 +20,7 @@ plt.figure(figsize=(10, 8)) # 그래프 크기 조절
 plt.scatter(df['X'], df['Y'], color='lightgray', s=10, label='전체 데이터')
 
 # 10개마다 샘플링한 데이터를 빨간색의 큰 점으로 표시
-plt.scatter(df_sampled['X'], df_sampled['Y'], color='red', s=50, label='10개마다 선택된 데이터')
+plt.scatter(df_sampled['X'], df_sampled['Y'], color='red', s=5, label='10개마다 선택된 데이터')
 
 # 그래프 제목 및 라벨 설정
 plt.title('CSV 데이터 시각화 (10개마다 점 찍기)')

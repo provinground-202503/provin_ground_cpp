@@ -21,8 +21,10 @@ find_package(catkin REQUIRED COMPONENTS
   vision_msgs
   visualization_msgs
   ackermann_msgs
-  message_generation
+  # message_generation
   yolo
+  message_runtime
+  erp_driver
 )
 
 ## System dependencies are found with CMake's conventions
@@ -59,10 +61,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  carState.msg
-)
+# add_message_files(
+#   FILES
+#   carState.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -184,6 +186,15 @@ target_link_libraries(avoid_path_publisher  ${catkin_LIBRARIES})
 
 add_executable(avoid_path_follower src/avoid_path_follower.cpp)
 target_link_libraries(avoid_path_follower  ${catkin_LIBRARIES})
+
+add_executable(pp_first src/pp_first.cpp)
+target_link_libraries(pp_first  ${catkin_LIBRARIES})
+
+add_executable(pp_second src/pp_second.cpp)
+target_link_libraries(pp_second  ${catkin_LIBRARIES})
+
+add_executable(pp_third src/pp_third.cpp)
+target_link_libraries(pp_third  ${catkin_LIBRARIES})
 
 
 

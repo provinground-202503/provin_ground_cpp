@@ -270,7 +270,7 @@ private:
 
         target_index_ = 0;
         car_length_ = 1.04;
-        look_ahead_distance_ = 2.0;
+        look_ahead_distance_ = 3.0;
         
         // 로컬 좌표 기준 (0,0)으로 초기화
         curr_x_ = 0.0;
@@ -286,8 +286,8 @@ public:
     PurePursuit() : nh_("~") {
         utm_sub_ = nh_.subscribe("/utm_fix", 1, &PurePursuit::utmCallback, this);
         erp_status_sub_ = nh_.subscribe("/erp42_status", 1, &PurePursuit::erpStatusCallback, this);
-        imu_sub_ = nh_.subscribe("/imu/fix",1,&PurePursuit::imuCallback,this);
-        yolo_id_sub_ = nh_.subscribe()
+        imu_sub_ = nh_.subscribe("/imu_fix",1,&PurePursuit::imuCallback,this);
+        // yolo_id_sub_ = nh_.subscribe()
 
         erp_cmd_pub_ = nh_.advertise<erp_driver::erpCmdMsg>("/erp42_ctrl_cmd", 1);
         ack_pub_ = nh_.advertise<ackermann_msgs::AckermannDriveStamped>("/ackermann_cmd", 1);

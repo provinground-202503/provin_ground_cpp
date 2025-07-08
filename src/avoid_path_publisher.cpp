@@ -13,9 +13,9 @@
 
 // 사용자가 쉽게 조정할 수 있는 파라미터
 // 장애물의 충돌 반경 (미터)
-const double OBSTACLE_RADIUS = 0.5; 
+const double OBSTACLE_RADIUS = 0.3; 
 // 장애물로부터 밀어낼 안전 거리 (미터). OBSTACLE_RADIUS보다 커야 합니다.
-const double SAFE_DISTANCE = 1.0; 
+const double SAFE_DISTANCE = 0.5; 
 
 class ObstacleAvoidePath{
 public:
@@ -57,9 +57,11 @@ private:
     // 콜백 함수: 수신한 데이터를 해당 멤버 변수에 저장하는 역할만 수행
     void localPathCallback(const nav_msgs::Path::ConstPtr& msg){
         local_path_ = *msg;
+        std::cout<<"local path subscribed(avoid_path)"<<std::endl;
     }
 
     void utmCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
+        std::cout<<"utm subscribed(avoid_path)"<<std::endl;
         current_utm_ = *msg;
     }
 
@@ -70,6 +72,7 @@ private:
 
     void clusteredCallback(const visualization_msgs::MarkerArray::ConstPtr& msg){
         if(msg==nullptr)return;
+        std::cout<<"clustered subscribed(avoid_path)"<<std::endl;
         obstacles_ = *msg;
 
         
@@ -82,11 +85,14 @@ private:
      */
     void pathPublishCallback(const ros::TimerEvent&){
         // 로컬 경로가 없거나, 현재 위치 정보가 없으면 아무것도 하지 않음
-        if (local_path_.poses.empty() || current_utm_.header.stamp.isZero()){
-            ROS_WARN_THROTTLE(1.0, "Waiting for local_path or utm message...");
-            return;
-        }
+        // if (local_path_==nullptr || current_utm_==nullptr){
+        //     ROS_WARN_THROTTLE(1.0, "Waiting for local_path or utm message...");
+        //     std::cout<<"local_path_pose_header_stamp:"<<local_path_.header.stamp.nsec<<std::endl;
+        //     std::cout<<"utm_header_stamp:"<<current_utm_.header.stamp.nsec<<std::endl;
 
+        //     return;
+        // }
+        std::cout<<"local path subscribed(avoid_path)"<<std::endl;
         // 이전 위치 정보가 유효하지 않으면 (첫 실행), 현재 위치를 이전 위치로 설정하고 종료
         if (previous_utm_.header.stamp.isZero()) {
             previous_utm_ = current_utm_;

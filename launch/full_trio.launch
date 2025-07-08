@@ -1,0 +1,8 @@
+<launch>
+    <node name="utm_pose_publisher" pkg="provin_ground" type="utm_pose_publisher" output="screen"/>
+    <!-- <node name="pure_pursuit" pkg="provin_ground" type="pure_pursuit_solo" output="screen"/> -->
+    <node name="pp_first" pkg="provin_ground" type="pp_first" output="screen"/>
+    <node name="pp_second" pkg="provin_ground" type="pp_second" output="screen"/>
+    <node name="pp_third" pkg="provin_ground" type="pp_third" output="screen"/>
+    
+</launch>

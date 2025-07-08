@@ -24,7 +24,8 @@ public:
         // 파라미터 서버로부터 CSV 파일 경로를 받아옵니다.
         // 실행 시 "_path_file:=/경로/파일명.csv" 형태로 지정할 수 있습니다.
         std::string file_path;
-        nh.param<std::string>("path_file", file_path, ""); // 기본값은 빈 문자열
+        // 기본 CSV 파일 경로를 /root/erp42_ws/src/provin_ground_cpp/path/path_morai_xy.csv 로 설정
+        nh.param<std::string>("path_file", file_path, "/root/erp42_ws/src/provin_ground_cpp/path/path_morai_xy.csv"); 
         if (file_path.empty()) {
             ROS_FATAL("CSV file path is empty! set the parameter _path_file .");
             ros::shutdown();
@@ -55,9 +56,11 @@ private:
         global_path_.header.stamp = ros::Time::now();
 
         std::string line;
-        std::getline(file, line); // 첫 번째 줄 (헤더)은 건너뜁니다.
+        // 첫 번째 줄 (헤더)은 건너뜁니다.
+        // 만약 CSV 파일에 헤더가 없다면 이 줄을 주석 처리해야 합니다.
+        std::getline(file, line); 
 
-        // 파일의 각 줄을 읽어 x, y, yaw를 파싱
+        // 파일의 각 줄을 읽어 x, y를 파싱
         while (std::getline(file, line)) {
             std::stringstream ss(line);
             std::string segment;
@@ -67,29 +70,34 @@ private:
                 values.push_back(segment);
             }
 
-            // 필요한 컬럼 (x, y, yaw)이 모두 있는지 확인 (최소 4개 컬럼 필요)
-            if (values.size() >= 4) {
+            // 필요한 컬럼 (x, y)이 모두 있는지 확인 (최소 2개 컬럼 필요)
+            if (values.size() >= 2) { // yaw 정보가 없으므로 2개 이상으로 변경
                 try {
                     geometry_msgs::PoseStamped pose;
                     // x, y 좌표 파싱 (컬럼 0, 1)
                     pose.pose.position.x = std::stod(values[0]);
                     pose.pose.position.y = std::stod(values[1]);
-                    pose.pose.position.z = 0; // 2D 주행이므로 z는 0
+                    pose.pose.position.z = 0; // 2D 주행이므로 z는 0으로 고정
 
-                    // yaw(라디안) 파싱 (컬럼 3)
-                    double yaw_rad = std::stod(values[3]);
+                    // Yaw 정보가 CSV 파일에 없으므로, 기본 Quaternion (회전 없음)을 사용
+                    // tf2::Quaternion q;
+                    // q.setRPY(0, 0, 0); // Roll, Pitch, Yaw 모두 0 (회전 없음)
+                    // pose.pose.orientation = tf2::toMsg(q);
+                    // 또는 geometry_msgs::Quaternion의 기본값 (0,0,0,1)을 그대로 사용
+                    pose.pose.orientation.x = 0;
+                    pose.pose.orientation.y = 0;
+                    pose.pose.orientation.z = 0;
+                    pose.pose.orientation.w = 1;
 
-                    // yaw(라디안)를 Quaternion으로 변환
-                    tf2::Quaternion q;
-                    q.setRPY(0, 0, yaw_rad); // Roll, Pitch는 0, Yaw는 파싱한 값 사용
-                    pose.pose.orientation = tf2::toMsg(q);
 
                     // 생성된 PoseStamped를 경로에 추가
                     global_path_.poses.push_back(pose);
 
                 } catch (const std::exception& e) {
-                    ROS_ERROR("error occured when parsing CSV (line: %s): %s", line.c_str(), e.what());
+                    ROS_ERROR("error occurred when parsing CSV (line: %s): %s", line.c_str(), e.what());
                 }
+            } else {
+                ROS_WARN("Skipping line due to insufficient columns (expected at least 2 for X, Y): %s", line.c_str());
             }
         }
         file.close();
