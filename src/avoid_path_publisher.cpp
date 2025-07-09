@@ -17,6 +17,10 @@ const double OBSTACLE_RADIUS = 0.3;
 // 장애물로부터 밀어낼 안전 거리 (미터). OBSTACLE_RADIUS보다 커야 합니다.
 const double SAFE_DISTANCE = 0.5; 
 
+
+const double UTM_X_OFFSET=360825.8208815998;
+const double UTM_Y_OFFSET=4065896.298577933;
+
 class ObstacleAvoidePath{
 public:
     ObstacleAvoidePath(){
@@ -62,7 +66,13 @@ private:
 
     void utmCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
         std::cout<<"utm subscribed(avoid_path)"<<std::endl;
-        current_utm_ = *msg;
+        geometry_msgs::PoseStamped current_utm;
+        current_utm.header = msg->header;
+        current_utm.pose.orientation = msg->pose.orientation;
+        current_utm.pose.position.x = msg->pose.position.x;
+        current_utm.pose.position.y = msg->pose.position.y;
+        current_utm.pose.position.z = msg->pose.position.z;
+        current_utm_ = current_utm;
     }
 
     // void obstacleCallback(const visualization_msgs::MarkerArray::ConstPtr& msg){

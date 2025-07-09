@@ -9,6 +9,10 @@
 #include <cmath> // std::sqrt, std::pow 사용을 위해 추가
 #include <limits> // std::numeric_limits 사용을 위해 추가
 
+
+const double UTM_X_OFFSET=360825.8208815998;
+const double UTM_Y_OFFSET=4065896.298577933;
+
 class LocalPathPublisher{
 public:
     LocalPathPublisher(){
@@ -23,12 +27,12 @@ public:
         local_path_pub_ = nh.advertise<nav_msgs::Path>("/local_path", 1);
 
         // 이전 위치 초기값 설정 (임의의 값)
-        // utm_offset_x_ = 360777.923575;
-        // utm_offset_y_ = 4065980.612646;
-        previous_x_ = 360777.923575;
-        previous_y_ = 4065980.612646;
-        current_x_ = 360777.923575;
-        current_y_ = 4065980.612646;
+        // utm_offset_x_ = 0;
+        // utm_offset_y_ = 0;
+        // previous_x_ = 360777.923575;
+        // previous_y_ = 4065980.612646;
+        // current_x_ = 360777.923575;
+        // current_y_ = 4065980.612646;
 
         ROS_INFO("Local Path Publisher node has been initialized.");
     }
@@ -36,7 +40,7 @@ public:
     // global_path 토픽을 수신했을 때 호출되는 콜백 함수
     void globalPathCallback(const nav_msgs::Path::ConstPtr& msg){
         global_path_ = *msg;
-        std::cout<<"global path subscribed(local_path)"<<std::endl;
+        // std::cout<<"global path subscribed(local_path)"<<std::endl;
         // ROS_INFO("Received global path with %zu poses.", msg->poses.size());
     }
 
@@ -46,7 +50,7 @@ public:
         current_x_ = msg->pose.position.x;
         current_y_ = msg->pose.position.y;
         
-        std::cout<<"utm subscribed(local_path)"<<std::endl;
+        // std::cout<<"utm subscribed(local_path)"<<std::endl;
 
         // (주석 처리된 부분) 이전 좌표와 현재 좌표를 이용해 현재 차량의 yaw 추정 가능
         // double current_yaw = std::atan2(current_y_ - previous_y_, current_x_ - previous_x_);

@@ -31,6 +31,8 @@ public:
             ros::shutdown();
             return;
         }
+        nh.param<double>("utm_x_offset", UTM_X_OFFSET, 360825.8208815998);
+        nh.param<double>("utm_y_offset", UTM_Y_OFFSET, 4065896.29857793);
 
         // 파라미터로 받은 경로의 CSV 파일을 로드합니다.
         loadPathFromCSV(file_path);
@@ -75,8 +77,8 @@ private:
                 try {
                     geometry_msgs::PoseStamped pose;
                     // x, y 좌표 파싱 (컬럼 0, 1)
-                    pose.pose.position.x = std::stod(values[0]);
-                    pose.pose.position.y = std::stod(values[1]);
+                    pose.pose.position.x = std::stod(values[0])+UTM_X_OFFSET;
+                    pose.pose.position.y = std::stod(values[1])+UTM_Y_OFFSET;
                     pose.pose.position.z = 0; // 2D 주행이므로 z는 0으로 고정
 
                     // Yaw 정보가 CSV 파일에 없으므로, 기본 Quaternion (회전 없음)을 사용
@@ -117,6 +119,12 @@ private:
     ros::Publisher path_pub_;
     ros::Timer pub_timer_;
     nav_msgs::Path global_path_; // 로드된 전체 경로를 저장하는 변수
+    double UTM_X_OFFSET;
+    double UTM_Y_OFFSET;
+
+    // double UTM_X_OFFSET=360825.8208815998;
+    // double UTM_Y_OFFSET=4065896.298577933;
+    
 };
 
 int main(int argc, char** argv) {
