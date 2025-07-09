@@ -58,14 +58,17 @@ private:
 
     uint8_t emergency_brake_;
 
+    // 웨이포인트 파일 경로
+    std::string waypoint_file_path_; // Add this line
+
     /**
      * @brief CSV 파일에서 웨이포인트를 로드하고 UTM 오프셋을 적용합니다.
      */
     void loadWaypoints() {
-        std::string file_path = "/root/erp42_ws/src/provin_ground_cpp/path/path_morai_xy.csv";
-        std::ifstream file(file_path);
+        // Use the member variable waypoint_file_path_
+        std::ifstream file(waypoint_file_path_);
         if (!file.is_open()) {
-            ROS_FATAL("경로 파일을 열 수 없습니다: %s", file_path.c_str());
+            ROS_FATAL("경로 파일을 열 수 없습니다: %s", waypoint_file_path_.c_str());
             ros::shutdown();
             return;
         }
@@ -148,8 +151,8 @@ private:
     
     void imuCallback(const sensor_msgs::Imu::ConstPtr& msg) {
         tf2::Quaternion q(msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w);
-        double roll, pitch, yaw;
-        tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
+        double roll, pitch, yaw_imu; // Renamed yaw to yaw_imu to avoid conflict with class member
+        tf2::Matrix3x3(q).getRPY(roll, pitch, yaw_imu); // Use yaw_imu
         if(pitch>=std::tan(0.05)) emergency_brake_ = 100; // mountain or roadblock
         else emergency_brake_ = 1; //
     }
@@ -191,8 +194,6 @@ private:
                 break;
             }
         }
-
-
         
         // 경로의 끝에 도달하여 목표 지점을 찾지 못한 경우, 차량 정지
         if (target_index_ == -1) {
@@ -284,6 +285,10 @@ private:
 
 public:
     PurePursuit() : nh_("~") {
+        // Get waypoint file path from ROS parameter server
+        // The second argument is the default value if the parameter is not found
+        nh_.param<std::string>("waypoint_file", waypoint_file_path_, "/root/erp42_ws/src/provin_ground_cpp/path/path_morai_xy.csv");
+
         utm_sub_ = nh_.subscribe("/utm_fix", 1, &PurePursuit::utmCallback, this);
         erp_status_sub_ = nh_.subscribe("/erp42_status", 1, &PurePursuit::erpStatusCallback, this);
         imu_sub_ = nh_.subscribe("/imu_fix",1,&PurePursuit::imuCallback,this);

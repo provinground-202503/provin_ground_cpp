@@ -1,7 +1,7 @@
 <launch>
     
     <!-- lidar clustering node -->
-    <node pkg="lidar_pkg" type="lidar_clustering.py" name="lidar_clustering" output="screen">
+    <node pkg="lidar_pkg" type="lidar_clustering2.py" name="lidar_clustering" output="screen">
         <param name="ransac_threshold" value="0.2" />
         <param name="min_cluster_size" value="10" />
         <param name="min_samples" value="5" />
@@ -26,6 +26,9 @@
     
     <!-- gnss tf fix node -->
     <!-- subscribe:/utm,,,,publish:/utm_fix -->
-    <node name="utm_pose_publisher" pkg="provin_ground" type="utm_pose_publisher" output="screen"/>
-
+    <node name="utm_pose_publisher" pkg="provin_ground" type="utm_pose_publisher" output="screen">
+        <param name="base_offset_x" value="0"/>
+        <param name="base_offset_y" value="0.16"/>
+        <param name="base_offset_z" value="0"/>
+    </node>
 </launch>   

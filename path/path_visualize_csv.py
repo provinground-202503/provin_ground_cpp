@@ -4,14 +4,14 @@ import matplotlib.pyplot as plt
 # CSV 파일을 읽어옵니다.
 # 'data.csv' 파일이 코드와 같은 폴더에 있어야 합니다.
 try:
-    df = pd.read_csv('path_corrected_3.csv')
+    df = pd.read_csv('pathmaker_path_xy_3.csv')
 except FileNotFoundError:
     print("'data.csv' 파일을 찾을 수 없습니다. 파일명과 경로를 확인해주세요.")
     exit()
 
 # 10개 행마다 하나의 데이터를 선택합니다. (0, 10, 20, ... 번째 인덱스)
 # df[::10]는 처음부터 끝까지 10칸씩 건너뛰며 데이터를 선택하는 구문입니다.
-df_sampled = df[::40]
+df_sampled = df[::30]
 
 # 시각화 설정
 plt.figure(figsize=(10, 8)) # 그래프 크기 조절

@@ -11,9 +11,9 @@ public:
     UTMPosePublisher() : nh_("~") {
         // 파라미터 서버에서 GPS 센서의 base_link 기준 오프셋을 불러옵니다.
         // 기본값: x=0.0, y=-0.10, z=0.0
-        nh_.param<double>("gps_offset_x", gps_offset_x_, 0.0);
-        nh_.param<double>("gps_offset_y", gps_offset_y_, -0.16);
-        nh_.param<double>("gps_offset_z", gps_offset_z_, 0.0);
+        nh_.param<double>("base_offset_x", gps_offset_x_, 0.0);
+        nh_.param<double>("base_offset_y", gps_offset_y_, 0.16);
+        nh_.param<double>("base_offset_z", gps_offset_z_, 0.0);
 
         // /utm 토픽 구독
         utm_sub_ = nh_.subscribe("/utm", 10, &UTMPosePublisher::utmCallback, this);

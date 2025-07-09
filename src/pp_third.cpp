@@ -68,8 +68,8 @@ private:
     uint8_t emergency_brake_; // IMU 피치에 따른 비상 브레이크
     
     // UTM 좌표 오프셋
-    const double UTM_OFFSET_X = 360777.923575;
-    const double UTM_OFFSET_Y = 4065980.612646;
+    const double UTM_OFFSET_X = 0;//360777.923575;
+    const double UTM_OFFSET_Y = 0;//4065980.612646;
 
     bool START_SIGNAL;
 

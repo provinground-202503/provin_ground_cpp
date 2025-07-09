@@ -18,8 +18,8 @@ const double OBSTACLE_RADIUS = 0.3;
 const double SAFE_DISTANCE = 0.5; 
 
 
-const double UTM_X_OFFSET=360825.8208815998;
-const double UTM_Y_OFFSET=4065896.298577933;
+// const double UTM_X_OFFSET=360825.8208815998;
+// const double UTM_Y_OFFSET=4065896.298577933;
 
 class ObstacleAvoidePath{
 public:
@@ -143,6 +143,7 @@ private:
         nav_msgs::Path avoid_path = local_path_; 
         for (size_t i = 0; i < avoid_path.poses.size(); ++i){
             auto& waypoint = avoid_path.poses[i].pose.position;
+            if(global_obstacles.empty()) break;
             for (const auto& obs_point : global_obstacles){
                 double dist = std::sqrt(std::pow(waypoint.x - obs_point.x, 2) + std::pow(waypoint.y - obs_point.y, 2));
                 if (dist < OBSTACLE_RADIUS){

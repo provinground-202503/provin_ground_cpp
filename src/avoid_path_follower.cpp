@@ -32,7 +32,7 @@ public:
     PathFollower(){
         ros::NodeHandle nh("~");
         path_sub_ = nh.subscribe("/avoid_path", 1, &PathFollower::pathCallback, this);
-        utm_sub_ = nh.subscribe("/utm", 1, &PathFollower::utmCallback, this);
+        utm_sub_ = nh.subscribe("/utm_fix", 1, &PathFollower::utmCallback, this);
         yolo_sub_ = nh.subscribe("/yolo_detections",1,&PathFollower::yoloCallback,this);
         imu_sub_ = nh.subscribe("/imu_fix",1,&PathFollower::imuCallback,this);
         erp_status_sub_=nh.subscribe("/erp42_status",1,&PathFollower::erpStatusCallback,this);
@@ -46,6 +46,10 @@ public:
         // 멤버 변수 초기화
         previous_utm_.header.stamp.fromSec(0); // 유효하지 않은 시간으로 초기화
         current_vehicle_yaw_ = 0.0;
+        vehicle_speed_ = MAX_VEHICLE_SPEED;
+        emergency_brake_ = 1;
+        START_SIGNAL_ = false;
+        current_speed_ = 0.0;
     }
 
 private:
@@ -139,7 +143,7 @@ private:
         q.setW(msg->pose.orientation.w);
         tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
         if(std::tan(pitch) < -0.05){
-            emergency_brake_ = 100;
+            emergency_brake_ = 17;
         }
         else emergency_brake_ = 1;
         std::cout<<"pitch:"<<pitch<<" emergency_brake:"<<emergency_brake_<<std::endl;
@@ -209,7 +213,7 @@ private:
         // 3. Pure Pursuit 조향각 계산
         double steering_angle = calculateSteeringAngle(target_point);
         // std::cout<<"steering angle: "<<steering_angle<<std::endl;
-        // std::cout<<"vehicle speed: "<<vehicle_speed_<<std::endl;
+        std::cout<<"vehicle speed: "<<vehicle_speed_<<std::endl;
 
         // 4. calculate longitudinal target speed with PID 
 
@@ -245,6 +249,7 @@ private:
             }
         }
         // std::cout<<"closest_idx: "<<closest_idx<<std::endl;
+        ROS_INFO("Closest Index: %d", closest_idx);
 
         // 가장 가까운 지점부터 시작하여 lookahead_dist 보다 멀리 있는 첫 번째 점을 찾음
         for (size_t i = closest_idx; i < current_path_.poses.size(); ++i) {
@@ -256,7 +261,6 @@ private:
                 // std::cout<<"vehicle point:"<<vehicle_x<<" "<<vehicle_y<<std::endl;
                 std::cout<<"target point("<<i<<"):"<<current_path_.poses[i].pose.position.x<<" "<<current_path_.poses[i].pose.position.y<<std::endl;
                 // std::cout<<"found target point: "<<i<<" dist: "<<dist_to_point<<std::endl;
-                std:: cout<<"target idx: "<<i<<std::endl;
                 return i;
             }
         }
@@ -328,7 +332,9 @@ private:
         }
         cmd_msg.steer = static_cast<int32_t>(cmd_msg.steer);
         erp_cmd_pub_.publish(cmd_msg);
-        // std::cout<<"speed: "<<cmd_msg.speed<<" steer:"<<cmd_msg.steer<<" brake:"<<cmd_msg.brake<<" e_stop:"<<cmd_msg.e_stop<<" gear:"<<cmd_msg.gear<<std::endl;
+        std::cout<<"speed: "<<static_cast<int>(cmd_msg.speed)
+            <<" steer:"<<cmd_msg.steer<<" brake:"<<static_cast<int>(cmd_msg.brake)
+            <<" e_stop:"<<static_cast<int>(cmd_msg.e_stop)<<" gear:"<<static_cast<int>(cmd_msg.gear)<<std::endl;
         // std::cout<<"steering_angle: "<<steering_angle<<" erp_angle: "<<cmd_msg.steer<<std::endl;
     }
 };

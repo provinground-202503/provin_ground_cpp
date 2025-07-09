@@ -166,7 +166,7 @@ include_directories(
 add_executable(utm_pose_publisher src/utm_pose_publisher.cpp)
 target_link_libraries(utm_pose_publisher  ${catkin_LIBRARIES})
 
-add_executable(pure_pursuit_solo src/pure_pursuit_from_f1tenth.cpp)
+add_executable(pure_pursuit_solo src/pure_pursuit_pid.cpp)
 target_link_libraries(pure_pursuit_solo  ${catkin_LIBRARIES})
 
 add_executable(path_maker src/path_maker.cpp)
@@ -180,8 +180,8 @@ target_link_libraries(global_path_publisher  ${catkin_LIBRARIES})
 
 add_executable(local_path_publisher src/local_path_publisher.cpp)
 target_link_libraries(local_path_publisher  ${catkin_LIBRARIES})
-
-add_executable(avoid_path_publisher src/avoid_path_publisher.cpp)
+#avoid_path_publisher.cpp, avoid_path_publisher_VPF.cpp
+add_executable(avoid_path_publisher src/avoid_path_publisher_VPF.cpp)
 target_link_libraries(avoid_path_publisher  ${catkin_LIBRARIES})
 
 add_executable(avoid_path_follower src/avoid_path_follower.cpp)

@@ -62,7 +62,7 @@ private:
      * @brief CSV 파일에서 웨이포인트를 로드하고 UTM 오프셋을 적용합니다.
      */
     void loadWaypoints() {
-        std::string file_path = "/root/erp42_ws/src/provin_ground_cpp/path/path_morai_xy.csv";
+        std::string file_path = "/root/erp42_ws/src/provin_ground_cpp/path/pathmaker_path_xy.csv";
         std::ifstream file(file_path);
         if (!file.is_open()) {
             ROS_FATAL("경로 파일을 열 수 없습니다: %s", file_path.c_str());
@@ -284,7 +284,7 @@ private:
 
 public:
     PurePursuit() : nh_("~") {
-        utm_sub_ = nh_.subscribe("/utm_fix", 1, &PurePursuit::utmCallback, this);
+        utm_sub_ = nh_.subscribe("/utm", 1, &PurePursuit::utmCallback, this);
         erp_status_sub_ = nh_.subscribe("/erp42_status", 1, &PurePursuit::erpStatusCallback, this);
         imu_sub_ = nh_.subscribe("/imu_fix",1,&PurePursuit::imuCallback,this);
         // yolo_id_sub_ = nh_.subscribe()

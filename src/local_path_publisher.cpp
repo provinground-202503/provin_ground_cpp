@@ -10,8 +10,8 @@
 #include <limits> // std::numeric_limits 사용을 위해 추가
 
 
-const double UTM_X_OFFSET=360825.8208815998;
-const double UTM_Y_OFFSET=4065896.298577933;
+// const double UTM_X_OFFSET=360825.8208815998;
+// const double UTM_Y_OFFSET=4065896.298577933;
 
 class LocalPathPublisher{
 public:
@@ -77,6 +77,9 @@ public:
                 closest_waypoint_index = i;
             }
         }
+        std::cout<<"closest_localpath_waypoint_index:"<<closest_waypoint_index<<std::endl;
+        std::cout<<"minimum distance:"<<min_dist<<std::endl;
+
 
         // --- Local Path 생성 및 발행 ---
         nav_msgs::Path local_path;
