@@ -64,6 +64,7 @@
   <build_depend>ackermann_msgs</build_depend>
   <build_depend>yolo</build_depend>
   <build_depend>erp_driver</build_depend>
+  <build_depend>OpenCV</build_depend>
 
   <build_export_depend>erp_driver</build_export_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
@@ -80,6 +81,7 @@
   <build_export_depend>ackermann_msgs</build_export_depend>
   <build_export_depend>yolo</build_export_depend>
   <build_export_depend>erp_driver</build_export_depend>
+  <build_export_depend>OpenCV</build_export_depend>
 
   <exec_depend>erp_driver</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
@@ -96,6 +98,7 @@
   <exec_depend>ackermann_msgs</exec_depend>
   <exec_depend>yolo</exec_depend>
   <exec_depend>erp_driver</exec_depend>
+  <exec_depend>OpenCV</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

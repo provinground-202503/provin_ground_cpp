@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
 #include <ackermann_msgs/AckermannDriveStamped.h>
 #include <erp_driver/erpCmdMsg.h>
 #include <erp_driver/erpStatusMsg.h>
@@ -33,6 +34,8 @@ private:
     ros::Subscriber yolo_sub_;
     ros::Subscriber imu_sub_;
     ros::Subscriber global_path_sub_; // New subscriber for global path
+
+    ros::Subscriber start_signal_sub_;
     ros::Publisher erp_cmd_pub_;
     ros::Publisher ack_pub_;
     ros::Timer control_timer_;
@@ -52,9 +55,10 @@ private:
     double current_steer_erp_, current_steer_rad_, current_steer_deg_;
     double erp_status_dt_; // Time difference between status updates
     double prev_error_mps_, error_integral_;
-    double yolo_speed_mps_;
+    double yolo_speed_mps_, MAX_SPEED_MPS_;
 
     uint8_t emergency_brake_;
+    bool START_SIGNAL_;
 
     /**
      * @brief Callback for receiving the global path.
@@ -129,23 +133,24 @@ private:
             }
             else if(detection.class_name=="yellowlight"){
                 yellowlight=true;
+                break;
             }
             else if(detection.class_name=="greenlight"){
                 greenlight=true;
             }
         }
-        if(redlight){
+        if(redlight || yellowlight){
             yolo_speed_mps_=0.0;
             return;
         }
-        else if(yellowlight){
-            yolo_speed_mps_=0.6;
+        else{
+            yolo_speed_mps_=MAX_SPEED_MPS_;
             return;
         }
-        else if(greenlight){
-            yolo_speed_mps_=1.3;
-            return;
-        }
+    }
+    
+    void startSignalCallback(const std_msgs::Bool::ConstPtr& msg) {
+        START_SIGNAL_ = msg->data;
     }
     
     /**
@@ -218,7 +223,10 @@ private:
      * @brief Publishes Ackermann and ERP42 control messages.
      */
     void publishCommands(double target_speed_mps, double steer_angle) {
-
+        if(!START_SIGNAL_) {
+            std::cout<<"start signal is false\n";
+            return;
+        }
         // PID controller for longitudinal speed
         double p_gain = 0.7;
         double i_gain = 0.0;
@@ -242,7 +250,7 @@ private:
         // Publish ERP42 control command
         erp_driver::erpCmdMsg cmd_msg;
         cmd_msg.e_stop = false;
-        cmd_msg.gear = (target_speed_mps == 0) ? 1 : 0; // 0 for forward, 1 for stop (neutral/brake)
+        cmd_msg.gear = (target_speed_mps == 0) ? 0 : 0; // 0 for forward, 1 for stop (neutral/brake)
         if (emergency_brake_ >1){
             cmd_msg.speed = 0;
         }
@@ -285,7 +293,10 @@ private:
         prev_error_mps_ = 0.0;
         emergency_brake_ = 1; // Default brake value (minimal)
 
-        yolo_speed_mps_ = 1.3;
+        MAX_SPEED_MPS_ = 1.6;
+
+        yolo_speed_mps_ = MAX_SPEED_MPS_;
+        START_SIGNAL_ = false;
     }
 
 public:
@@ -296,6 +307,7 @@ public:
         yolo_sub_ = nh_.subscribe("/yolo_detections",1,&PurePursuitController::yoloCallback,this);
         imu_sub_ = nh_.subscribe("/imu_fix", 1, &PurePursuitController::imuCallback, this);
         global_path_sub_ = nh_.subscribe("/avoid_path", 1, &PurePursuitController::globalPathCallback, this); // Subscribe to the new global path topic
+        start_signal_sub_ = nh_.subscribe("/erp42_start", 1, &PurePursuitController::startSignalCallback, this);
 
 
         // Publishers

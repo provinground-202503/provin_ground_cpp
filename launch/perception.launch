@@ -8,6 +8,7 @@
         <param name="cluster_selection_epsilon" value="1.0" />
         <param name="lidar_topic" value="/ouster/points" />
     </node>
+    <node pkg="provin_ground" type="obstacle_kalman_filter" name="obstacle_kalman_filter" output="screen"/>
 
     <!-- image compressed node -->
     <!-- subscribe: /usb_cam/image_raw,,,,publish:/republished_image/published -->
@@ -17,7 +18,7 @@
     <!-- subscribe: /republished_image/compressed -->
     <node name="yolo_detector" pkg="yolo" type="yolo_detection.py" output="screen">
         <param name="image_topic" value="/republished_image/compressed"/>
-        <param name="model_path" value="$(find yolo)/models/yolov8s_0709.pt"/>
+        <param name="model_path" value="$(find yolo)/models/epoch100_best.pt"/>
     </node>
 
     <!-- imu filter node -->

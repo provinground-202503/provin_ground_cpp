@@ -210,7 +210,7 @@ private:
         double ld_sq = target_x_local * target_x_local + target_y_local * target_y_local;
         double steering_angle = std::atan2(2.0 * car_length_ * target_y_local, ld_sq);
         
-        double target_speed_mps = 1.5;
+        double target_speed_mps = 2.0;
         publishCommands(target_speed_mps, steering_angle);
         
         ROS_INFO("Target Index: %d, Steering Angle (rad): %.2f", target_index_, steering_angle);
@@ -284,7 +284,7 @@ private:
 
 public:
     PurePursuit() : nh_("~") {
-        utm_sub_ = nh_.subscribe("/utm", 1, &PurePursuit::utmCallback, this);
+        utm_sub_ = nh_.subscribe("/utm_fix", 1, &PurePursuit::utmCallback, this);
         erp_status_sub_ = nh_.subscribe("/erp42_status", 1, &PurePursuit::erpStatusCallback, this);
         imu_sub_ = nh_.subscribe("/imu_fix",1,&PurePursuit::imuCallback,this);
         // yolo_id_sub_ = nh_.subscribe()

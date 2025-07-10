@@ -26,6 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_runtime
   erp_driver
 )
+find_package(OpenCV 4 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -131,6 +132,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -175,15 +177,17 @@ target_link_libraries(pure_pursuit_solo  ${catkin_LIBRARIES})
 
 add_executable(global_path_publisher src/global_path_publisher.cpp)
 target_link_libraries(global_path_publisher  ${catkin_LIBRARIES})
+add_executable(avoid_path_follower src/avoid_path_follower.cpp)
+target_link_libraries(avoid_path_follower  ${catkin_LIBRARIES})
+
+add_executable(obstacle_kalman_filter src/obstacle_kalman_filter.cpp)
+target_link_libraries(obstacle_kalman_filter ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 add_executable(local_path_publisher src/local_path_publisher.cpp)
 target_link_libraries(local_path_publisher  ${catkin_LIBRARIES})
 #avoid_path_publisher.cpp, avoid_path_publisher_VPF.cpp
-add_executable(avoid_path_publisher src/avoid_path_publisher.cpp)
+add_executable(avoid_path_publisher src/avoid_path_rrtstar.cpp)
 target_link_libraries(avoid_path_publisher  ${catkin_LIBRARIES})
-
-add_executable(avoid_path_follower src/avoid_path_follower.cpp)
-target_link_libraries(avoid_path_follower  ${catkin_LIBRARIES})
 
 
 
