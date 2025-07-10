@@ -1,7 +1,7 @@
 <launch>
     
     <!-- lidar clustering node -->
-    <node pkg="lidar_pkg" type="lidar_clustering2.py" name="lidar_clustering" output="screen">
+    <node pkg="lidar_pkg" type="lidar_clustering3.py" name="lidar_clustering" output="screen">
         <param name="ransac_threshold" value="0.2" />
         <param name="min_cluster_size" value="10" />
         <param name="min_samples" value="5" />
@@ -12,11 +12,12 @@
     <!-- image compressed node -->
     <!-- subscribe: /usb_cam/image_raw,,,,publish:/republished_image/published -->
     <node pkg="yolo" type="republish_compressed.py" name="republish_image" output="screen"/>
+    
     <!-- camera object detection node -->
     <!-- subscribe: /republished_image/compressed -->
     <node name="yolo_detector" pkg="yolo" type="yolo_detection.py" output="screen">
         <param name="image_topic" value="/republished_image/compressed"/>
-        <param name="model_path" value="$(find yolo)/models/best.pt"/>
+        <param name="model_path" value="$(find yolo)/models/yolov8s_0709.pt"/>
     </node>
 
     <!-- imu filter node -->

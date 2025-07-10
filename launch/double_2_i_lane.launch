@@ -1,0 +1,14 @@
+<launch>
+    <node name="utm_pose_publisher" pkg="provin_ground" type="utm_pose_publisher" output="screen"/>
+    <!-- <node name="pure_pursuit" pkg="provin_ground" type="pure_pursuit_solo" output="screen"/> -->
+    <node name="global_path_node" pkg="provin_ground" type="global_path_publisher" output="screen">
+        <param name="path_file" value="/root/erp42_ws/src/provin_ground_cpp/path/interpolated_ctrack_vils.csv"/>
+        <param name="utm_x_offset" value="0.0"/>
+        <param name="utm_y_offset" value="0.5"/>
+    </node>
+    <node name="local_path_node" pkg="provin_ground" type="local_path_publisher" output="screen"/>
+    <node name="avoid_path_node" pkg="provin_ground" type="avoid_path_publisher" output="screen"/>
+    
+    <node name="pp_second" pkg="provin_ground" type="pp_second_1" output="screen"/>
+    
+</launch>

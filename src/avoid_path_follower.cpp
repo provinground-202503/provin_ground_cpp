@@ -32,7 +32,7 @@ public:
     PathFollower(){
         ros::NodeHandle nh("~");
         path_sub_ = nh.subscribe("/avoid_path", 1, &PathFollower::pathCallback, this);
-        utm_sub_ = nh.subscribe("/utm_fix", 1, &PathFollower::utmCallback, this);
+        utm_sub_ = nh.subscribe("/utm", 1, &PathFollower::utmCallback, this);
         yolo_sub_ = nh.subscribe("/yolo_detections",1,&PathFollower::yoloCallback,this);
         imu_sub_ = nh.subscribe("/imu_fix",1,&PathFollower::imuCallback,this);
         erp_status_sub_=nh.subscribe("/erp42_status",1,&PathFollower::erpStatusCallback,this);

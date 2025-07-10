@@ -5,10 +5,9 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <cmath>
-#include <limits>
+#include <limits> // For std::numeric_limits
 
-// 웨이포인트 구조체 정의
+// Waypoint structure definition
 struct waypoint {
     double x;
     double y;
@@ -18,27 +17,27 @@ class GlobalPathPublisher {
 private:
     ros::NodeHandle nh_;
     ros::Publisher path_pub_;
-    ros::Timer publish_timer_;
-
     std::vector<waypoint> waypoint_vector_;
+
+    // UTM coordinate offsets (can be loaded from parameter server if needed)
     double utm_offset_x_;
     double utm_offset_y_;
 
     /**
-     * @brief CSV 파일에서 웨이포인트를 로드하고 UTM 오프셋을 적용합니다.
+     * @brief Loads waypoints from a CSV file and applies UTM offsets.
      */
     void loadWaypoints() {
-        std::string file_path = "/root/erp42_ws/src/provin_ground_cpp/path/path_morai_xy.csv";
+        std::string file_path = "/root/erp42_ws/src/provin_ground_cpp/path/pathmaker_path_xy.csv";
         std::ifstream file(file_path);
         if (!file.is_open()) {
-            ROS_FATAL("cannot open file: %s", file_path.c_str());
+            ROS_FATAL("Failed to open path file: %s", file_path.c_str());
             ros::shutdown();
             return;
         }
 
         waypoint_vector_.clear();
         std::string line;
-        std::getline(file, line); // 헤더 라인 건너뛰기
+        std::getline(file, line); // Skip header line
 
         while (std::getline(file, line)) {
             std::stringstream ss(line);
@@ -53,42 +52,45 @@ private:
             waypoint_vector_.push_back(guide);
         }
         file.close();
-        ROS_INFO("%zu waypoints loaded from local origin.", waypoint_vector_.size());
+        ROS_INFO("%zu waypoints loaded relative to local origin.", waypoint_vector_.size());
     }
 
     /**
-     * @brief 로드된 경로를 Rviz 등에서 시각화하기 위해 발행합니다.
+     * @brief Publishes the loaded path for visualization in Rviz.
      */
-    void publishPath(const ros::TimerEvent&) {
-        if (waypoint_vector_.empty()) {
-            ROS_WARN_THROTTLE(1.0, "no waypoints loaded.");
-            return;
-        }
+    void publishPath() {
+        if (waypoint_vector_.empty()) return;
 
         nav_msgs::Path path_msg;
         path_msg.header.stamp = ros::Time::now();
-        path_msg.header.frame_id = "map"; // Global path in the map frame
+        path_msg.header.frame_id = "map";
 
-        for (const auto& waypoint : waypoint_vector_) {
+        for (const auto& wp : waypoint_vector_) {
             geometry_msgs::PoseStamped pose;
             pose.header = path_msg.header;
-            pose.pose.position.x = waypoint.x;
-            pose.pose.position.y = waypoint.y;
+            pose.pose.position.x = wp.x;
+            pose.pose.position.y = wp.y;
             pose.pose.position.z = 0;
             path_msg.poses.push_back(pose);
         }
         path_pub_.publish(path_msg);
-        ROS_INFO_THROTTLE(5.0, "global path publishing.");
     }
 
 public:
     GlobalPathPublisher() : nh_("~") {
-        utm_offset_x_ = 0; // Set your UTM offsets here if needed
-        utm_offset_y_ = 0;
+        // Initialize UTM offsets (can be set to 0 if path is already local)
+        // utm_offset_x_ = 360777.923575;
+        // utm_offset_y_ = 4065980.612646;
+        utm_offset_x_ = 0.0;
+        utm_offset_y_ = 0.0;
 
         loadWaypoints();
-        path_pub_ = nh_.advertise<nav_msgs::Path>("/global_path", 1, true); // Latched topic
-        publish_timer_ = nh_.createTimer(ros::Duration(1.0), &GlobalPathPublisher::publishPath, this); // Publish periodically
+        path_pub_ = nh_.advertise<nav_msgs::Path>("/global_path", 1, true); // Advertise as /global_path
+        publishPath(); // Publish once at startup, or regularly if path can change
+        
+        // You might want to publish the path periodically if it's dynamic
+        // Or just once if it's a static path. For a static path, publishing once is usually enough.
+        // ros::Timer publish_timer_ = nh_.createTimer(ros::Duration(1.0), &GlobalPathPublisher::publishPath, this);
     }
 };
 

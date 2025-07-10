@@ -150,7 +150,7 @@ private:
         tf2::Quaternion q(msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w);
         double roll, pitch, yaw;
         tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
-        if(pitch>=std::tan(0.05)) emergency_brake_ = 100; // mountain or roadblock
+        if(pitch>=std::tan(0.05)) emergency_brake_ = 33; // mountain or roadblock
         else emergency_brake_ = 1; //
     }
     
@@ -246,7 +246,7 @@ private:
         cmd_msg.gear = (target_speed_mps == 0) ? 1 : 0;
         if(current_speed_mps_ > target_speed_mps){cmd_msg.speed = 0;}
         else cmd_msg.speed = static_cast<uint8_t>(output_mps_ * 3.6 * 10.0);
-        cmd_msg.brake = (target_speed_mps == 0) ? 200 : emergency_brake_;
+        cmd_msg.brake = (target_speed_mps == 0) ? 33 : emergency_brake_;
 
         double steering_angle_degree = steer_angle * 180.0 / M_PI;
         cmd_msg.steer = -static_cast<int32_t>(steering_angle_degree * 71.0);

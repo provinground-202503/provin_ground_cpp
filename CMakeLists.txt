@@ -166,11 +166,9 @@ include_directories(
 add_executable(utm_pose_publisher src/utm_pose_publisher.cpp)
 target_link_libraries(utm_pose_publisher  ${catkin_LIBRARIES})
 
-add_executable(pure_pursuit_solo src/pure_pursuit_pid.cpp)
+add_executable(pure_pursuit_solo src/pure_pursuit_from_f1tenth.cpp)
 target_link_libraries(pure_pursuit_solo  ${catkin_LIBRARIES})
 
-add_executable(path_maker src/path_maker.cpp)
-target_link_libraries(path_maker  ${catkin_LIBRARIES})
 
 
 
@@ -181,20 +179,20 @@ target_link_libraries(global_path_publisher  ${catkin_LIBRARIES})
 add_executable(local_path_publisher src/local_path_publisher.cpp)
 target_link_libraries(local_path_publisher  ${catkin_LIBRARIES})
 #avoid_path_publisher.cpp, avoid_path_publisher_VPF.cpp
-add_executable(avoid_path_publisher src/avoid_path_publisher_VPF.cpp)
+add_executable(avoid_path_publisher src/avoid_path_publisher.cpp)
 target_link_libraries(avoid_path_publisher  ${catkin_LIBRARIES})
 
 add_executable(avoid_path_follower src/avoid_path_follower.cpp)
 target_link_libraries(avoid_path_follower  ${catkin_LIBRARIES})
 
-add_executable(pp_first src/pp_first.cpp)
+
+
+add_executable(pp_first src/global_path_publisher_pp.cpp)
 target_link_libraries(pp_first  ${catkin_LIBRARIES})
 
-add_executable(pp_second src/pp_second.cpp)
-target_link_libraries(pp_second  ${catkin_LIBRARIES})
+add_executable(pp_second_1 src/controller_pp.cpp)
+target_link_libraries(pp_second_1  ${catkin_LIBRARIES})
 
-add_executable(pp_third src/pp_third.cpp)
-target_link_libraries(pp_third  ${catkin_LIBRARIES})
 
 
 
@@ -207,10 +205,12 @@ target_link_libraries(pp_third  ${catkin_LIBRARIES})
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
 ## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
+# ## in contrast to setup.py, you can choose the destination
 # catkin_install_python(PROGRAMS
-#   scripts/my_python_script
+#   # scripts/my_python_script
+#   scripts/
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#   PATTERN "*.py"
 # )
 
 ## Mark executables for installation

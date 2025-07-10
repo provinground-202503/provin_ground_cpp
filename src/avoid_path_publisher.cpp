@@ -84,9 +84,6 @@ private:
         if(msg==nullptr)return;
         std::cout<<"clustered subscribed(avoid_path)"<<std::endl;
         obstacles_ = *msg;
-
-        
-
     }
 
     /**
@@ -168,6 +165,18 @@ private:
 
         // 5. 다음 계산을 위해 현재 위치를 이전 위치로 업데이트
         previous_utm_ = current_utm_;
+
+        double distance_by_index=0;
+        for(size_t i = 0; i < avoid_path.poses.size(); ++i){
+            auto& avoidance_waypoint = avoid_path.poses[i].pose.position;
+            auto& localpath_waypoint = local_path_.poses[i].pose.position;
+            double euclidean_distance
+                = std::sqrt(std::pow(avoidance_waypoint.x - localpath_waypoint.x,2) 
+                            + std::pow(avoidance_waypoint.y - localpath_waypoint.y,2));
+            distance_by_index += euclidean_distance;
+        }
+        distance_by_index /= static_cast<double>(avoid_path.poses.size());
+        std::cout<<"distance_by_index:"<<distance_by_index<<std::endl;
     }
 };
 

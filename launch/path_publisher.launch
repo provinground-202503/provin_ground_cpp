@@ -3,7 +3,7 @@
     <!-- teacher offset (360825.8208815998, 4065896.298577933 ) -->
     <!-- pathmaker(realworld) offset (0, 0) -->
     <node name="global_path_node" pkg="provin_ground" type="global_path_publisher" output="screen">
-        <param name="path_file" value="/root/erp42_ws/src/provin_ground_cpp/path/interpolated_ctrack_vils.csv"/>
+        <param name="path_file" value="/root/erp42_ws/src/provin_ground_cpp/path/path_Ilane.csv"/>
         <param name="utm_x_offset" value="0"/>
         <param name="utm_y_offset" value="0"/>
     </node>
