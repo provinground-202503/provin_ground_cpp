@@ -189,6 +189,9 @@ target_link_libraries(local_path_publisher  ${catkin_LIBRARIES})
 add_executable(avoid_path_publisher src/avoid_path_rrtstar.cpp)
 target_link_libraries(avoid_path_publisher  ${catkin_LIBRARIES})
 
+add_executable(lattice_path_publisher src/lattice_path_publisher.cpp)
+target_link_libraries(lattice_path_publisher  ${catkin_LIBRARIES})
+
 
 
 add_executable(pp_first src/global_path_publisher_pp.cpp)

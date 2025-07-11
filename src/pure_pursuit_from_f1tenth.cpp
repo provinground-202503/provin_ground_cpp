@@ -150,8 +150,8 @@ private:
         tf2::Quaternion q(msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w);
         double roll, pitch, yaw;
         tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
-        if(pitch>=std::tan(0.05)) emergency_brake_ = 33; // mountain or roadblock
-        else emergency_brake_ = 1; //
+        // if(pitch>=std::tan(0.05)) emergency_brake_ = 33; // mountain or roadblock
+        // else emergency_brake_ = 1; //
     }
     
     /**
@@ -226,13 +226,21 @@ private:
         double i_gain = 0.0;
         double d_gain = 0.005;
         double error_speed = target_speed_mps - current_speed_mps_;
-        double p_term = p_gain * error_speed;
-        error_integral_ += error_speed * erp_status_dt_;
-        double i_term = i_gain * error_integral_;
-        double d_term = d_gain * (error_speed - prev_error_mps_) / erp_status_dt_;
-        prev_error_mps_ = error_speed;
-        double output_mps_ = p_term + i_term + d_term;
-
+        double output_mps_ = 0;
+        if(error_speed <=0){
+            target_speed_mps = 0;
+            output_mps_ = 0;
+            emergency_brake_ = static_cast<uint8_t>(error_speed * 660); // 0.05m/s margin
+        }
+        else{
+            double p_term = p_gain * error_speed;
+            error_integral_ += error_speed * erp_status_dt_;
+            double i_term = i_gain * error_integral_;
+            double d_term = d_gain * (error_speed - prev_error_mps_) / erp_status_dt_;
+            prev_error_mps_ = error_speed;
+            output_mps_ = p_term + i_term + d_term;
+            emergency_brake_ = 1;
+        }
         ackermann_msgs::AckermannDriveStamped ack_msg;
         ack_msg.header.stamp = ros::Time::now();
         ack_msg.header.frame_id = "base_link";
@@ -243,10 +251,12 @@ private:
 
         erp_driver::erpCmdMsg cmd_msg;
         cmd_msg.e_stop = false;
-        cmd_msg.gear = (target_speed_mps == 0) ? 1 : 0;
+        // cmd_msg.gear = (target_speed_mps == 0) ? 1 : 0;
+        cmd_msg.gear = 0;
         if(current_speed_mps_ > target_speed_mps){cmd_msg.speed = 0;}
         else cmd_msg.speed = static_cast<uint8_t>(output_mps_ * 3.6 * 10.0);
-        cmd_msg.brake = (target_speed_mps == 0) ? 33 : emergency_brake_;
+        // cmd_msg.brake = (target_speed_mps == 0) ? 33 : emergency_brake_;
+        cmd_msg.brake = emergency_brake_;
 
         double steering_angle_degree = steer_angle * 180.0 / M_PI;
         cmd_msg.steer = -static_cast<int32_t>(steering_angle_degree * 71.0);
@@ -293,10 +303,10 @@ public:
         ack_pub_ = nh_.advertise<ackermann_msgs::AckermannDriveStamped>("/ackermann_cmd", 1);
         path_pub_ = nh_.advertise<nav_msgs::Path>("/local_path", 1, true);
         
-        control_timer_ = nh_.createTimer(ros::Duration(1.0 / 20.0), &PurePursuit::controlLoop, this);
+        control_timer_ = nh_.createTimer(ros::Duration(1.0 / 50.0), &PurePursuit::controlLoop, this);
         
         initialize();
-        erp_status_dt_ = 0.025;
+        erp_status_dt_ = 0.02;
         error_integral_ = 0;
         prev_error_mps_ = 0;
         emergency_brake_ = 1;

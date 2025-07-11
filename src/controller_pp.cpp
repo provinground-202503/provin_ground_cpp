@@ -114,11 +114,11 @@ private:
         tf2::Matrix3x3(q).getRPY(roll, pitch, yaw_imu);
         
         // Set emergency brake based on pitch angle
-        if(pitch >= std::tan(0.05)) { // Adjust threshold as needed for incline detection
-            emergency_brake_ = 20; // Aggressive brake
-        } else {
-            emergency_brake_ = 1; // Minimal brake
-        }
+        // if(pitch >= std::tan(0.05)) { // Adjust threshold as needed for incline detection
+        //     emergency_brake_ = 20; // Aggressive brake
+        // } else {
+        //     emergency_brake_ = 1; // Minimal brake
+        // }
     }
 
     void yoloCallback(const yolo::YoloDetectionArray::ConstPtr& msg) {
@@ -232,12 +232,20 @@ private:
         double i_gain = 0.0;
         double d_gain = 0.005;
         double error_speed = target_speed_mps - current_speed_mps_;
-        double p_term = p_gain * error_speed;
-        error_integral_ += error_speed * erp_status_dt_;
-        double i_term = i_gain * error_integral_;
-        double d_term = d_gain * (error_speed - prev_error_mps_) / erp_status_dt_;
-        prev_error_mps_ = error_speed;
-        double output_mps_ = p_term + i_term + d_term;
+        double output_mps_ = 0;
+        if(error_speed <=0){
+            target_speed_mps = 0;
+            output_mps_ = 0;
+            emergency_brake_ = static_cast<uint8_t>(error_speed * 660); // 0.05m/s margin
+        }
+        else {
+            double p_term = p_gain * error_speed;
+            error_integral_ += error_speed * erp_status_dt_;
+            double i_term = i_gain * error_integral_;
+            double d_term = d_gain * (error_speed - prev_error_mps_) / erp_status_dt_;
+            prev_error_mps_ = error_speed;
+            output_mps_ = p_term + i_term + d_term;
+        }
 
         // Publish AckermannDriveStamped message (for visualization or other nodes)
         ackermann_msgs::AckermannDriveStamped ack_msg;
@@ -250,18 +258,23 @@ private:
         // Publish ERP42 control command
         erp_driver::erpCmdMsg cmd_msg;
         cmd_msg.e_stop = false;
-        cmd_msg.gear = (target_speed_mps == 0) ? 0 : 0; // 0 for forward, 1 for stop (neutral/brake)
-        if (emergency_brake_ >1){
-            cmd_msg.speed = 0;
-        }
-        else if (current_speed_mps_ > target_speed_mps && target_speed_mps > 0.1) { // If overshooting speed, reduce speed to target
-            cmd_msg.speed = static_cast<uint8_t>(target_speed_mps * 3.6 * 10.0);
-        } else {
-            cmd_msg.speed = static_cast<uint8_t>(output_mps_ * 3.6 * 10.0); // Convert m/s to ERP42 speed unit (0-200)
-        }
+        // cmd_msg.gear = (target_speed_mps == 0) ? 1 : 0; // 0 for forward, 1 for stop (neutral/brake)
+        cmd_msg.gear = 0;
+        // if (emergency_brake_ >1){
+        //     cmd_msg.speed = 0;
+        // }
+        // else if (current_speed_mps_ > target_speed_mps && target_speed_mps > 0.1) { // If overshooting speed, reduce speed to target
+        //     cmd_msg.speed = static_cast<uint8_t>(target_speed_mps * 3.6 * 10.0);
+        // } else {
+        //     cmd_msg.speed = static_cast<uint8_t>(output_mps_ * 3.6 * 10.0); // Convert m/s to ERP42 speed unit (0-200)
+        // }
         
-        // Apply brake based on target speed and emergency brake status
-        cmd_msg.brake = (target_speed_mps == 0) ? 20 : emergency_brake_; // Full brake if target speed is 0, else emergency brake status
+        // // Apply brake based on target speed and emergency brake status
+        // cmd_msg.brake = (target_speed_mps == 0) ? 20 : emergency_brake_; // Full brake if target speed is 0, else emergency brake status
+
+        if(current_speed_mps_>target_speed_mps){cmd_msg.speed=0;}
+        else cmd_msg.speed = static_cast<uint8_t>(output_mps_ * 3.6 * 10.0);
+        cmd_msg.brake = emergency_brake_;
 
         double steering_angle_degree = steer_angle * 180.0 / M_PI;
         // ERP42 steer command is usually inverted and scaled
@@ -293,7 +306,7 @@ private:
         prev_error_mps_ = 0.0;
         emergency_brake_ = 1; // Default brake value (minimal)
 
-        MAX_SPEED_MPS_ = 1.6;
+        MAX_SPEED_MPS_ = 2.0;
 
         yolo_speed_mps_ = MAX_SPEED_MPS_;
         START_SIGNAL_ = false;
@@ -315,7 +328,7 @@ public:
         ack_pub_ = nh_.advertise<ackermann_msgs::AckermannDriveStamped>("/ackermann_cmd", 1);
         
         // Control loop timer (20 Hz)
-        control_timer_ = nh_.createTimer(ros::Duration(1.0 / 20.0), &PurePursuitController::controlLoop, this);
+        control_timer_ = nh_.createTimer(ros::Duration(1.0 / 50.0), &PurePursuitController::controlLoop, this);
         
         initialize();
     }
