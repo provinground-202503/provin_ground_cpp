@@ -62,7 +62,7 @@ private:
      * @brief CSV 파일에서 웨이포인트를 로드하고 UTM 오프셋을 적용합니다.
      */
     void loadWaypoints() {
-        std::string file_path = "/root/erp42_ws/src/provin_ground_cpp/path/pathmaker_path_xy.csv";
+        std::string file_path = "/root/erp42_ws/src/provin_ground_cpp/path/interpolated_ctrack_vils.csv";
         std::ifstream file(file_path);
         if (!file.is_open()) {
             ROS_FATAL("경로 파일을 열 수 없습니다: %s", file_path.c_str());

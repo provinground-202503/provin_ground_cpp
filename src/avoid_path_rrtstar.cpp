@@ -47,7 +47,7 @@ public:
 
         // 서브스크라이버 설정
         local_path_sub_ = nh.subscribe("/local_path", 1, &ObstacleAvoidancePath::localPathCallback, this);
-        utm_sub_ = nh.subscribe("/utm", 1, &ObstacleAvoidancePath::utmCallback, this);
+        utm_sub_ = nh.subscribe("/utm_fix", 1, &ObstacleAvoidancePath::utmCallback, this);
         clustered_sub_ = nh.subscribe("/lidar_clusters", 1, &ObstacleAvoidancePath::clusteredCallback, this);
 
         // 퍼블리셔 설정

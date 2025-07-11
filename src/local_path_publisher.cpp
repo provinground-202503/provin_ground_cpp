@@ -21,7 +21,7 @@ public:
 
         // Subscriber 설정: /global_path와 /utm 토픽을 구독합니다.
         global_path_sub_ = nh.subscribe("/global_path", 1, &LocalPathPublisher::globalPathCallback, this);
-        utm_sub_ = nh.subscribe("/utm", 1, &LocalPathPublisher::utmCallback, this);
+        utm_sub_ = nh.subscribe("/utm_fix", 1, &LocalPathPublisher::utmCallback, this);
 
         // Publisher 설정: /local_path 토픽으로 메시지를 발행합니다.
         local_path_pub_ = nh.advertise<nav_msgs::Path>("/local_path", 1);

@@ -26,7 +26,7 @@ public:
     ObstacleAvoidePath(){
         ros::NodeHandle nh("~");
         local_path_sub_ = nh.subscribe("/local_path", 1, &ObstacleAvoidePath::localPathCallback, this);
-        utm_sub_ = nh.subscribe("/utm", 1, &ObstacleAvoidePath::utmCallback, this);
+        utm_sub_ = nh.subscribe("/utm_fix", 1, &ObstacleAvoidePath::utmCallback, this);
         // obstacle_sub_ = nh.subscribe("/obstacles", 1, &ObstacleAvoidePath::obstacleCallback, this);
         clustered_sub_ = nh.subscribe("/lidar_clusters",1,&ObstacleAvoidePath::clusteredCallback,this);
         avoid_path_pub_ = nh.advertise<nav_msgs::Path>("/avoid_path", 1);

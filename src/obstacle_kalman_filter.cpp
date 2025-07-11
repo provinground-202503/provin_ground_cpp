@@ -115,7 +115,7 @@ private:
 public:
     ObstacleKalmanFilter() : nh_("~") { // Private NodeHandle for parameters
         sub_clusters_ = nh_.subscribe("/lidar_clusters", 1, &ObstacleKalmanFilter::clusteredCallback, this);
-        sub_utm_ = nh_.subscribe("/utm", 1, &ObstacleKalmanFilter::utmCallback, this);
+        sub_utm_ = nh_.subscribe("/utm_fix", 1, &ObstacleKalmanFilter::utmCallback, this);
         pub_filtered_obstacles_ = nh_.advertise<visualization_msgs::MarkerArray>("/filtered_obstacles", 10);
 
         last_update_time_ = ros::Time::now();

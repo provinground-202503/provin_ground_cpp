@@ -5,6 +5,6 @@
         <param name="base_offset_z" value="0"/>
     </node>
     <node name="pure_pursuit" pkg="provin_ground" type="pure_pursuit_solo" output="screen">
-        <param name="waypoint_file" value="/root/erp42_ws/src/provin_ground_cpp/path/pathmaker_path_xy_3.csv"/>
+        <param name="waypoint_file" value="/root/erp42_ws/src/provin_ground_cpp/path/interpolated_ctrack_vils.csv"/>
     </node>
 </launch>

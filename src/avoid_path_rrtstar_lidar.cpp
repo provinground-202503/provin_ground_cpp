@@ -50,7 +50,7 @@ public:
         // local_path: 상위 계획기(전역 계획)로부터 받은 추천 경로
         local_path_sub_ = nh.subscribe("/local_path", 1, &ObstacleAvoidancePath::localPathCallback, this);
         // utm: 차량의 현재 위치 (UTM 좌표계)
-        utm_sub_ = nh.subscribe("/utm", 1, &ObstacleAvoidancePath::utmCallback, this);
+        utm_sub_ = nh.subscribe("/utm_fix", 1, &ObstacleAvoidancePath::utmCallback, this);
         // lidar_clusters: 라이다 클러스터링 노드로부터 받은 장애물 정보 (토픽 이름 수정)
         clustered_sub_ = nh.subscribe("/filtered_clusters", 1, &ObstacleAvoidancePath::clusteredCallback, this);
 

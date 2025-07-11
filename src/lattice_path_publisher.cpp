@@ -298,7 +298,7 @@ int main(int argc, char** argv) {
     // --- Subscribers ---
     ros::Subscriber local_path_sub = nh.subscribe("/local_path", 1, localPathCallback);
     ros::Subscriber vehicle_status_sub = nh.subscribe("/vehicle_status", 1, vehicleStatusCallback);
-    ros::Subscriber utm_sub = nh.subscribe("/utm", 1, utmCallback);
+    ros::Subscriber utm_sub = nh.subscribe("/utm_fix", 1, utmCallback);
     ros::Subscriber obstacles_sub = nh.subscribe("/filtered_obstacles", 1, obstaclesCallback);
 
     // --- Publishers ---

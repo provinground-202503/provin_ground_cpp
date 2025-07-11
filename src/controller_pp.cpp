@@ -315,7 +315,7 @@ private:
 public:
     PurePursuitController() : nh_("~") {
         // Subscribers
-        utm_sub_ = nh_.subscribe("/utm", 1, &PurePursuitController::utmCallback, this);
+        utm_sub_ = nh_.subscribe("/utm_fix", 1, &PurePursuitController::utmCallback, this);
         erp_status_sub_ = nh_.subscribe("/erp42_status", 1, &PurePursuitController::erpStatusCallback, this);
         yolo_sub_ = nh_.subscribe("/yolo_detections",1,&PurePursuitController::yoloCallback,this);
         imu_sub_ = nh_.subscribe("/imu_fix", 1, &PurePursuitController::imuCallback, this);
