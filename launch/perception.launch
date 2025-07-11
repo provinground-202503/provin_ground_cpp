@@ -12,7 +12,7 @@
 
     <!-- image compressed node -->
     <!-- subscribe: /usb_cam/image_raw,,,,publish:/republished_image/published -->
-    <!-- <node pkg="yolo" type="republish_compressed.py" name="republish_image" output="screen"/> -->
+    <node pkg="yolo" type="republish_compressed.py" name="republish_image" output="screen"/>
     
     <!-- camera object detection node -->
     <!-- subscribe: /republished_image/compressed -->

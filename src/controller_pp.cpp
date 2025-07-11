@@ -232,11 +232,12 @@ private:
         double i_gain = 0.0;
         double d_gain = 0.005;
         double error_speed = target_speed_mps - current_speed_mps_;
+        std::cout<<"error_speed: "<<error_speed<<std::endl;
         double output_mps_ = 0;
         if(error_speed <=0){
             target_speed_mps = 0;
             output_mps_ = 0;
-            emergency_brake_ = static_cast<uint8_t>(error_speed * 660); // 0.05m/s margin
+            emergency_brake_ = static_cast<uint8_t>(32); // 0.05m/s margin
         }
         else {
             double p_term = p_gain * error_speed;
@@ -245,6 +246,7 @@ private:
             double d_term = d_gain * (error_speed - prev_error_mps_) / erp_status_dt_;
             prev_error_mps_ = error_speed;
             output_mps_ = p_term + i_term + d_term;
+            emergency_brake_ = static_cast<uint8_t>(1);
         }
 
         // Publish AckermannDriveStamped message (for visualization or other nodes)

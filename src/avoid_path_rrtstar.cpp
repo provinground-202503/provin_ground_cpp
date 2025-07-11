@@ -25,9 +25,9 @@ const double STEP_SIZE = 0.3;
 const double OBSTACLE_RADIUS = 0.4;
 const double NEIGHBOR_RADIUS = 0.5;
 const double GOAL_RADIUS = 0.2;
-const double SMOOTH_WEIGHT_DATA = 0.5;
-const double SMOOTH_WEIGHT_SMOOTH = 0.2;
-const double SMOOTH_TOLERANCE = 0.01;
+const double SMOOTH_WEIGHT_DATA = 0.7;
+const double SMOOTH_WEIGHT_SMOOTH = 0.3;
+const double SMOOTH_TOLERANCE = 0.05;
 
 
 // RRT* 트리의 노드를 표현하는 구조체
