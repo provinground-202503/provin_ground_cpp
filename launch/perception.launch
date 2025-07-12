@@ -35,5 +35,5 @@
         <param name="base_offset_z" value="0"/>
     </node>
     <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_os_sensor_broadcaster" args="0 0 0 0 0 0 base_link os_sensor" />
-
+    <node pkg="provin_ground" type="gps_tf_publisher" name="gps_tf_publisher" output="screen"/>
 </launch>   

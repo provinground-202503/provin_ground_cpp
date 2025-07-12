@@ -84,7 +84,7 @@ public:
         // --- Local Path 생성 및 발행 ---
         nav_msgs::Path local_path;
         local_path.header.stamp = ros::Time::now();
-        local_path.header.frame_id = "map"; // global_path와 동일한 프레임 ID 사용
+        local_path.header.frame_id = "gps"; // global_path와 동일한 프레임 ID 사용
 
         if (closest_waypoint_index != -1){
             // 가장 가까운 지점부터 50개의 웨이포인트를 local_path에 추가

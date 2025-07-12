@@ -7,8 +7,8 @@
         <param name="utm_y_offset" value="0.0"/>
     </node>
     <node name="local_path_node" pkg="provin_ground" type="local_path_publisher" output="screen"/>
-    <node name="avoid_path_node" pkg="provin_ground" type="avoid_path_publisher" output="screen"/>
-    
+    <!-- <node name="avoid_path_node" pkg="provin_ground" type="avoid_path_publisher" output="screen"/> -->
+    <node name="hybrid_a_star_node" pkg="provin_ground" type="hybrid_a_star_node" output="screen" />
     <node name="pp_second" pkg="provin_ground" type="pp_second_1" output="screen"/>
     
 </launch>

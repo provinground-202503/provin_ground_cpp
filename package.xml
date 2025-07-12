@@ -65,6 +65,10 @@
   <build_depend>yolo</build_depend>
   <build_depend>erp_driver</build_depend>
   <build_depend>OpenCV</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>pcl_conversions</build_depend>
+  <build_depend>libpcl-all-dev</build_depend>
+  <build_depend>costmap_2d</build_depend>
 
   <build_export_depend>erp_driver</build_export_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
@@ -81,7 +85,11 @@
   <build_export_depend>ackermann_msgs</build_export_depend>
   <build_export_depend>yolo</build_export_depend>
   <build_export_depend>erp_driver</build_export_depend>
+  <build_export_depend>pcl_ros</build_export_depend>
+  <build_export_depend>pcl_conversions</build_export_depend>
   <build_export_depend>OpenCV</build_export_depend>
+  <build_export_depend>libpcl-all-dev</build_export_depend>
+  <build_export_depend>costmap_2d</build_export_depend>
 
   <exec_depend>erp_driver</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
@@ -99,6 +107,10 @@
   <exec_depend>yolo</exec_depend>
   <exec_depend>erp_driver</exec_depend>
   <exec_depend>OpenCV</exec_depend>
+  <exec_depend>pcl_ros</exec_depend>
+  <exec_depend>pcl_conversions</exec_depend>
+  <exec_depend>libpcl-all-dev</exec_depend>
+  <exec_depend>costmap_2d</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

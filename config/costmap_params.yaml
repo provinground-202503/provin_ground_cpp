@@ -1,0 +1,20 @@
+# obstacle_costmap_node가 사용할 코스트맵 파라미터
+obstacle_costmap:
+  # --- 핵심 변경 사항 ---
+  global_frame: base_link      # 전역 좌표계를 로봇의 base_link로 설정
+  robot_base_frame: base_link  # 로봇 기준 좌표계도 base_link로 설정
+  rolling_window: true         # 코스트맵이 로봇을 따라 움직이도록 설정 (필수)
+  # --------------------
+
+  # 코스트맵의 크기, 해상도 등
+  # rolling_window가 true일 때, origin은 무시됩니다.
+  width: 10.0            # meters (로봇 중심으로부터의 폭)
+  height: 10.0           # meters (로봇 중심으로부터의 높이)
+  resolution: 0.10       # meters/cell
+
+  # 코스트맵 발행 주기
+  publish_frequency: 2.0 # 더 자주 업데이트하도록 조절 가능
+
+  # 다른 레이어는 사용하지 않음
+  plugins: []
+  static_map: false

@@ -63,7 +63,7 @@ private:
 
         nav_msgs::Path path_msg;
         path_msg.header.stamp = ros::Time::now();
-        path_msg.header.frame_id = "map";
+        path_msg.header.frame_id = "gps";
 
         for (const auto& wp : waypoint_vector_) {
             geometry_msgs::PoseStamped pose;
