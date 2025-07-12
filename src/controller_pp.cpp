@@ -308,7 +308,7 @@ private:
         prev_error_mps_ = 0.0;
         emergency_brake_ = 1; // Default brake value (minimal)
 
-        MAX_SPEED_MPS_ = 2.0;
+        MAX_SPEED_MPS_ = 2.3;
 
         yolo_speed_mps_ = MAX_SPEED_MPS_;
         START_SIGNAL_ = false;
