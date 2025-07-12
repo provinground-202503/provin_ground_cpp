@@ -213,6 +213,17 @@ add_executable(hybrid_a_star_node src/hybrid_a_star_planner.cpp)
 target_link_libraries(hybrid_a_star_node ${catkin_LIBRARIES})
 
 
+# multi global path planner
+
+add_executable(multi_global_path_node src/multi/multi_global_path_node.cpp)
+target_link_libraries(multi_global_path_node ${catkin_LIBRARIES})
+
+add_executable(multi_local_path_node src/multi/multi_local_path_node.cpp)
+target_link_libraries(multi_local_path_node ${catkin_LIBRARIES})
+
+add_executable(network_avoid_path_node src/multi/network_avoid_path_node.cpp)
+target_link_libraries(network_avoid_path_node ${catkin_LIBRARIES})
+
 
 
 #############

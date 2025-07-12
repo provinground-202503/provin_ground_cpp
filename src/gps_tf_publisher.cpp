@@ -68,7 +68,7 @@ int main(int argc, char** argv){
     ros::NodeHandle nh;
 
     // /utm 토픽 구독자 설정
-    ros::Subscriber sub = nh.subscribe("/utm", 10, &poseCallback);
+    ros::Subscriber sub = nh.subscribe("/utm_fix", 10, &poseCallback);
 
     // 콜백 함수 대기
     ros::spin();

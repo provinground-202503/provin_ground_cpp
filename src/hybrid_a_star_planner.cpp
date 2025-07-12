@@ -146,12 +146,33 @@ void HybridAStarPlanner::obstaclesCallback(const visualization_msgs::MarkerArray
 }
 
 void HybridAStarPlanner::plan(const ros::TimerEvent& event) {
+    // 경로 계획을 시작하기 전, 현재 위치와 로컬 경로가 수신되었는지 확인
     if (!pose_received_ || !path_received_ || local_path_.poses.empty()) {
         ROS_WARN_THROTTLE(2.0, "Waiting for initial pose and local path...");
         return;
     }
 
-    ROS_INFO("Start planning...");
+    // =================================================================
+    // ## 장애물 유무를 확인하는 로직 추가 ##
+    // obstacles_ 메시지의 markers 배열이 비어있으면 장애물이 없는 것으로 간주
+    // =================================================================
+    if (obstacles_.markers.empty()) {
+        // 장애물이 없으므로, 수신한 local_path를 그대로 avoid_path로 발행
+        ROS_INFO_THROTTLE(2.0, "No obstacles detected. Publishing local_path directly.");
+        
+        // 타임스탬프와 frame_id를 현재 시간에 맞게 갱신하여 발행
+        nav_msgs::Path avoid_path = local_path_;
+        avoid_path.header.stamp = ros::Time::now();
+        avoid_path.header.frame_id = "gps"; // 경로의 좌표계가 gps이므로 명시
+        
+        pub_avoid_path_.publish(avoid_path);
+        
+        // 경로 발행 후, 불필요한 Hybrid A* 계산을 건너뛰기 위해 함수 종료
+        return;
+    }
+
+    // 장애물이 존재할 경우에만 아래의 Hybrid A* 로직 수행
+    ROS_INFO("Obstacles detected. Start Hybrid A* planning...");
 
     createCostmapFromObstacles();
     std::shared_ptr<Node3D> start_node = poseToNode(current_pose_.pose);
@@ -196,8 +217,6 @@ void HybridAStarPlanner::plan(const ros::TimerEvent& event) {
             std::string next_key = std::to_string(next_node->grid_x) + "," + std::to_string(next_node->grid_y) + "," + std::to_string(next_node->grid_theta);
             if(closed_list.count(next_key)) continue;
 
-            // Open 리스트에 이미 있는지 확인하는 로직은 복잡하므로, g_cost를 직접 비교하는 대신 그냥 push.
-            // 우선순위 큐가 알아서 정렬하므로, 더 나은 경로가 나중에 탐색됨.
             next_node->g_cost = new_g_cost;
             next_node->h_cost = calculateReedsSheppPathCost(next_node, goal_node);
             next_node->parent = current_node;
@@ -206,6 +225,7 @@ void HybridAStarPlanner::plan(const ros::TimerEvent& event) {
     }
     ROS_WARN("Could not find a valid path to the goal.");
 }
+
 
 void HybridAStarPlanner::createCostmapFromObstacles() {
     costmap_.header.frame_id = "gps";

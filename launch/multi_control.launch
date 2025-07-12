@@ -1,0 +1,6 @@
+<launch>
+    <node pkg="provin_ground" type="multi_global_path_node" name="multi_global_path_node" output="screen" />
+    <node pkg="provin_ground" type="multi_local_path_node" name="multi_local_path_node" output="screen" />
+    <node pkg="provin_ground" type="network_avoid_path_node" name="network_avoid_path_node" output="screen" />
+    <node pkg="provin_ground" type="pp_second_1" name="pp_second_1" output="screen" />
+</launch>
