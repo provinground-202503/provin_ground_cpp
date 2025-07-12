@@ -326,7 +326,11 @@ public:
         erp_status_sub_    = nh_.subscribe("/erp42_status",   1, &PurePursuitController::erpStatusCallback, this);
         yolo_sub_          = nh_.subscribe("/yolo_detections",1, &PurePursuitController::yoloCallback, this);
         imu_sub_           = nh_.subscribe("/imu_fix",        1, &PurePursuitController::imuCallback, this);
+<<<<<<< HEAD
         global_path_sub_   = nh_.subscribe("/local_path",     1, &PurePursuitController::globalPathCallback, this);
+=======
+        global_path_sub_   = nh_.subscribe("/avoid_path",     1, &PurePursuitController::globalPathCallback, this);
+>>>>>>> 1e8b62ec3411af03410a4b86c48f421915037f0b
         start_signal_sub_  = nh_.subscribe("/erp42_start",    1, &PurePursuitController::startSignalCallback, this);
         obj_dist_sub_      = nh_.subscribe("/obj_distance",   1, &PurePursuitController::objDistanceCallback, this);
 

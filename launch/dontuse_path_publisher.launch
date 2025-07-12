@@ -1,0 +1,15 @@
+<launch>
+    <!-- morai offset (361025.8208815998, 4066196.29857793) -->
+    <!-- teacher offset (360825.8208815998, 4065896.298577933 ) -->
+    <!-- pathmaker(realworld) offset (0, 0) -->
+    <node name="global_path_node" pkg="provin_ground" type="global_path_publisher" output="screen">
+        <param name="path_file" value="/home/a/erp42_ws/src/provin_ground_cpp/path/path_Ilane.csv"/>
+        <param name="utm_x_offset" value="0"/>
+        <param name="utm_y_offset" value="0"/>
+    </node>
+    <!-- we need utm coordinate!!!! -->
+    <!-- path.x = csv.x+utm_x_offset; path.y = csv.y+utm_y_offset; -->
+    <node name="local_path_node" pkg="provin_ground" type="local_path_publisher" output="screen"/>
+    <node name="avoid_path_node" pkg="provin_ground" type="avoid_path_publisher" output="screen"/>
+    <!-- <node name="path_follower_node" pkg="provin_ground" type="avoid_path_follower" output="screen"/> -->
+</launch>
