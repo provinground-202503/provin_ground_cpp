@@ -17,7 +17,7 @@
     <!-- camera object detection node -->
     <!-- subscribe: /republished_image/compressed -->
     <node name="yolo_detector" pkg="yolo" type="yolo_detection.py" output="screen">
-        <!-- <param name="image_topic" value="/republished_image/compressed"/> -->
+        <param name="image_topic" value="/republished_image/compressed"/>
         <param name="image_topic" value="/usb_cam/image_raw/compressed"/>
         <param name="model_path" value="$(find yolo)/models/epoch100_best.pt"/>
     </node>

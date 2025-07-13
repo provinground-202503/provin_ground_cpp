@@ -228,16 +228,21 @@ private:
             return;
         }
         // PID controller for longitudinal speed
-        double p_gain = 0.7;
-        double i_gain = 0.0;
-        double d_gain = 0.005;
+        double p_gain = 1.6;
+        double i_gain = 0.04;
+        double d_gain = 0.001;
         double error_speed = target_speed_mps - current_speed_mps_;
         std::cout<<"error_speed: "<<error_speed<<std::endl;
         double output_mps_ = 0;
-        if(error_speed <=0){
+        if(current_speed_mps_ > MAX_SPEED_MPS_*1.01){
             target_speed_mps = 0;
             output_mps_ = 0;
-            emergency_brake_ = static_cast<uint8_t>(32); // 0.05m/s margin
+            emergency_brake_ = static_cast<uint8_t>(33); // 0.05m/s margin
+        }
+        else if(current_speed_mps_ >=MAX_SPEED_MPS_ *0.95){
+            double error_term = 33 * (MAX_SPEED_MPS_*0.05 - error_speed)/(MAX_SPEED_MPS_ *0.05);
+            double emergency_max_brake = 33;
+            emergency_brake_ = static_cast<uint8_t>(std::min(emergency_max_brake ,error_term));
         }
         else {
             double p_term = p_gain * error_speed;
@@ -245,7 +250,7 @@ private:
             double i_term = i_gain * error_integral_;
             double d_term = d_gain * (error_speed - prev_error_mps_) / erp_status_dt_;
             prev_error_mps_ = error_speed;
-            output_mps_ = p_term + i_term + d_term;
+            output_mps_ = std::min(p_term + i_term + d_term, 2.8);
             emergency_brake_ = static_cast<uint8_t>(1);
         }
 
@@ -308,7 +313,7 @@ private:
         prev_error_mps_ = 0.0;
         emergency_brake_ = 1; // Default brake value (minimal)
 
-        MAX_SPEED_MPS_ = 2.3;
+        MAX_SPEED_MPS_ = 2.777;
 
         yolo_speed_mps_ = MAX_SPEED_MPS_;
         START_SIGNAL_ = false;

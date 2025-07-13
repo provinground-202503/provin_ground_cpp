@@ -224,9 +224,14 @@ target_link_libraries(multi_local_path_node ${catkin_LIBRARIES})
 add_executable(network_avoid_path_node src/multi/network_avoid_path_node.cpp)
 target_link_libraries(network_avoid_path_node ${catkin_LIBRARIES})
 
+add_executable(network_yolo_path_node src/multi/network_yolo_path_node.cpp)
+target_link_libraries(network_yolo_path_node ${catkin_LIBRARIES})
+
 
 add_executable(kt_controller_pp src/kt_controller_pp.cpp)
 target_link_libraries(kt_controller_pp ${catkin_LIBRARIES})
+
+
 
 
 #############

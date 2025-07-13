@@ -190,6 +190,7 @@ private:
                 } else {
                     ROS_INFO("Reached avoid WP2, returning to path");
                     avoid_mode_   = false;
+                    avoid_stage_ = 0;
                     obj_distance_ = 0.0;  // 리셋
                 }
             }
@@ -258,12 +259,12 @@ private:
     // 속도(PID) 및 조향 명령 생성/발행 함수
     void publishCommands(double target_speed_mps, double steer_angle) {
         // ---- longitudinal PID 제어 ----
-        double p_gain = 0.7, i_gain = 0.0, d_gain = 0.005;
+        double p_gain = 2.0, i_gain = 0.0, d_gain = 0.005;
         double error_speed = target_speed_mps - current_speed_mps_;
         double output_mps = 0.0;
         if (error_speed <= 0) {
             output_mps       = 0.0;
-            emergency_brake_ = static_cast<uint8_t>(-error_speed * 660);
+            emergency_brake_ = static_cast<uint8_t>(32); // 0.05m/s margin
         } else {
             double p_term = p_gain * error_speed;
             error_integral_ += error_speed * erp_status_dt_;
@@ -271,6 +272,8 @@ private:
             double d_term = d_gain * (error_speed - prev_error_mps_) / erp_status_dt_;
             prev_error_mps_ = error_speed;
             output_mps = p_term + i_term + d_term;
+            output_mps = std::min(output_mps, 5.5);
+            emergency_brake_ = static_cast<uint8_t>(1);
         }
 
         // ---- Ackermann 메시지 퍼블리시 (시각화용) ----
@@ -326,11 +329,7 @@ public:
         erp_status_sub_    = nh_.subscribe("/erp42_status",   1, &PurePursuitController::erpStatusCallback, this);
         yolo_sub_          = nh_.subscribe("/yolo_detections",1, &PurePursuitController::yoloCallback, this);
         imu_sub_           = nh_.subscribe("/imu_fix",        1, &PurePursuitController::imuCallback, this);
-<<<<<<< HEAD
-        global_path_sub_   = nh_.subscribe("/local_path",     1, &PurePursuitController::globalPathCallback, this);
-=======
         global_path_sub_   = nh_.subscribe("/avoid_path",     1, &PurePursuitController::globalPathCallback, this);
->>>>>>> 1e8b62ec3411af03410a4b86c48f421915037f0b
         start_signal_sub_  = nh_.subscribe("/erp42_start",    1, &PurePursuitController::startSignalCallback, this);
         obj_dist_sub_      = nh_.subscribe("/obj_distance",   1, &PurePursuitController::objDistanceCallback, this);
 
